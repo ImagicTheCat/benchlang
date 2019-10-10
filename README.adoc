@@ -1,0 +1,28 @@
+
+= benchlang
+
+This project aims to be a tool, a collection of measures and a website about benchmarking languages and their implementations. Measures are nice; interpretation of those measures is up to human beings.
+
+== Concepts
+
+Measures are generated in the `results/` directory for a specific host, a specific language, a specific environment, a specific work and a specific implementation of this work.
+
+=== Language
+
+A programming language.
+
+=== Environment
+
+A specific language builder/VM/etc executing an implementation's source code.
+
+=== Work
+
+Something that must be done by the languages; Different set of parameters and expected outputs are used to verify that the work has been done correctly.
+
+=== Implementation
+
+An implementation of a specific work in a specific language.
+
+=== Host
+
+Describes all the information about the machine/OS where the work is executed and common parameters used to generate the results for all languages.
