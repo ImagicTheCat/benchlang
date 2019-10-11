@@ -26,6 +26,8 @@ bool subproc_create(char * const argv[], subproc_t *p);
 // return number of bytes read from process stdout (0: eof, -1: nothing to read)
 int subproc_step(subproc_t *p, void *buf, size_t count, int timeout);
 
+void subproc_kill(subproc_t *p);
+
 // close fd_read
 void subproc_close(subproc_t *p);
 

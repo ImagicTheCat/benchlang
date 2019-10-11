@@ -15,6 +15,7 @@ typedef struct{
 
 bool subproc_create(char * const argv[], subproc_t *data);
 int subproc_step(subproc_t *p, void *buf, size_t count, int timeout);
+void subproc_kill(subproc_t *p);
 void subproc_close(subproc_t *p);
 double mclock();
 void set_signal_handler(void (*handler)(int));
@@ -45,6 +46,10 @@ local function measure_subproc(args, timeout)
     while n ~= 0 or subproc.running do
       print("read",n,subproc.running,subproc.status)
       if n > 0 then table.insert(outs, ffi.string(data, n)) end
+      -- timeout check
+      if lib.mclock()-subproc.start_time > 5 then
+        lib.subproc_kill(subproc)
+      end
 
       n = lib.subproc_step(subproc, data, 4096, 100)
     end
@@ -64,4 +69,5 @@ end
 
 measure_subproc({"ls", "-a"})
 measure_subproc({"sleep", "3"})
+measure_subproc({"sleep", "20"})
 measure_subproc({"dsfslfdkjflk", "3"})

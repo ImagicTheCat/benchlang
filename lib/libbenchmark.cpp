@@ -51,12 +51,15 @@ int subproc_step(subproc_t *p, void *buf, size_t count, int timeout)
   return n;
 }
 
+void subproc_kill(subproc_t *p)
+{
+  kill(p->pid, SIGKILL);
+}
 
 void subproc_close(subproc_t *p)
 {
   close(p->fd_read);
 }
-
 
 double mclock()
 {
@@ -66,7 +69,6 @@ double mclock()
   else
     return -1;
 }
-
 
 void set_signal_handler(void (*handler)(int))
 {
