@@ -13,7 +13,8 @@ struct subproc_t{
   bool running;
   int status;
   double start_time;
-  double elapsed_time;
+  double time, utime, stime;
+  long maxrss;
 };
 
 extern "C" {

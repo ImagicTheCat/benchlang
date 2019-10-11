@@ -10,7 +10,8 @@ typedef struct{
   bool running;
   int status;
   double start_time;
-  double elapsed_time;
+  double time, utime, stime;
+  long maxrss;
 } subproc_t;
 
 bool subproc_create(char * const argv[], subproc_t *data);
@@ -26,7 +27,7 @@ local subproc = ffi.new("subproc_t")
 
 -- capture end of child (subproc) process
 lib.set_signal_handler(function(signal)
-  subproc.elapsed_time = lib.mclock()-subproc.start_time
+  subproc.time = lib.mclock()-subproc.start_time
 end)
 
 -- return output string or nil on failure
@@ -38,13 +39,13 @@ local function measure_subproc(args, timeout)
 
   -- create sub process
   if lib.subproc_create(ffi.cast("char * const*", cargs), subproc) then
-    print(subproc.pid, unpack(args))
+    print(tonumber(subproc.pid), unpack(args))
     -- read output, check for timeout
     local outs = {}
     local data = ffi.new("char[4096]")
     local n = lib.subproc_step(subproc, data, 4096, 100)
     while n ~= 0 or subproc.running do
-      print("read",n,subproc.running,subproc.status)
+      print("read",n,subproc.running)
       if n > 0 then table.insert(outs, ffi.string(data, n)) end
       -- timeout check
       if lib.mclock()-subproc.start_time > 5 then
@@ -56,7 +57,7 @@ local function measure_subproc(args, timeout)
 
     lib.subproc_close(subproc)
 
-    print(subproc.status, subproc.elapsed_time)
+    print(subproc.status, subproc.time, subproc.utime, subproc.stime, tonumber(subproc.maxrss))
 
     if subproc.status ~= 0 then
       return table.concat(outs)
@@ -70,4 +71,5 @@ end
 measure_subproc({"ls", "-a"})
 measure_subproc({"sleep", "3"})
 measure_subproc({"sleep", "20"})
+measure_subproc({"luajit", "-e", "while true do end"})
 measure_subproc({"dsfslfdkjflk", "3"})
