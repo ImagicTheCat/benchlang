@@ -24,6 +24,7 @@ extern "C" {
 bool subproc_create(char * const argv[], subproc_t *p);
 
 // read chunk of output / check process (non blocking)
+// will set running, status, utime, stime, maxrss on end of process
 // return number of bytes read from process stdout (0: eof, -1: nothing to read)
 int subproc_step(subproc_t *p, void *buf, size_t count, int timeout);
 

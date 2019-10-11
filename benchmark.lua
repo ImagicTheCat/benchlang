@@ -39,14 +39,17 @@ local function measure_subproc(args, timeout)
 
   -- create sub process
   if lib.subproc_create(ffi.cast("char * const*", cargs), subproc) then
-    print(tonumber(subproc.pid), unpack(args))
-    -- read output, check for timeout
+    print(tonumber(subproc.pid), unpack(args)) -- debug
     local outs = {}
     local data = ffi.new("char[4096]")
+
+    -- read output, check for timeout
     local n = lib.subproc_step(subproc, data, 4096, 100)
-    while n ~= 0 or subproc.running do
-      print("read",n,subproc.running)
-      if n > 0 then table.insert(outs, ffi.string(data, n)) end
+
+    while n ~= 0 or subproc.running do -- read all output and wait end of process
+      print("read",n,subproc.running) -- debug
+      if n > 0 then table.insert(outs, ffi.string(data, n)) end -- append output
+
       -- timeout check
       if lib.mclock()-subproc.start_time > 5 then
         lib.subproc_kill(subproc)
@@ -57,9 +60,9 @@ local function measure_subproc(args, timeout)
 
     lib.subproc_close(subproc)
 
-    print(subproc.status, subproc.time, subproc.utime, subproc.stime, tonumber(subproc.maxrss))
+    print(subproc.status, subproc.time, subproc.utime, subproc.stime, tonumber(subproc.maxrss)) -- debug
 
-    if subproc.status ~= 0 then
+    if subproc.status == 0 then
       return table.concat(outs)
     end
   end
