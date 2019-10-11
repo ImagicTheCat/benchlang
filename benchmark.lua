@@ -1,5 +1,16 @@
 -- requires LuaJIT
-local host = ...
+
+-- DEF
+
+-- return (true, ...) or (false, err) on failure
+local function loadconfig(path)
+  local f, err = loadfile(path)
+  if f then
+    return pcall(f)
+  else
+    return false, err
+  end
+end
 
 local ffi = require("ffi")
 local C = ffi.C
@@ -31,7 +42,7 @@ lib.set_signal_handler(function(signal)
 end)
 
 -- return output string or nil on failure
-local function measure_subproc(args, timeout)
+local function measure_subproc(args, timeout, step_delay)
   -- convert to C args
   if #args < 1 then return end
   local cargs = ffi.new("const char*[?]", #args+1, args)
@@ -44,18 +55,18 @@ local function measure_subproc(args, timeout)
     local data = ffi.new("char[4096]")
 
     -- read output, check for timeout
-    local n = lib.subproc_step(subproc, data, 4096, 100)
+    local n = lib.subproc_step(subproc, data, 4096, step_delay)
 
     while n ~= 0 or subproc.running do -- read all output and wait end of process
       print("read",n,subproc.running) -- debug
       if n > 0 then table.insert(outs, ffi.string(data, n)) end -- append output
 
       -- timeout check
-      if lib.mclock()-subproc.start_time > 5 then
+      if lib.mclock()-subproc.start_time > timeout then
         lib.subproc_kill(subproc)
       end
 
-      n = lib.subproc_step(subproc, data, 4096, 100)
+      n = lib.subproc_step(subproc, data, 4096, step_delay)
     end
 
     lib.subproc_close(subproc)
@@ -71,8 +82,43 @@ end
 local function compute_work(host, lang, work, env, impl)
 end
 
-measure_subproc({"ls", "-a"})
-measure_subproc({"sleep", "3"})
-measure_subproc({"sleep", "20"})
-measure_subproc({"luajit", "-e", "while true do end"})
-measure_subproc({"dsfslfdkjflk", "3"})
+-- EXEC
+
+-- params
+local phost, plang, penv, pwork, pimpl = ...
+if not phost then error("missing host") end
+
+-- load host
+local ok, host = loadconfig("hosts/"..phost..".lua")
+if not ok then error(host) end
+
+-- load langs
+local langs = {}
+local p_langs = {plang}
+if #p_langs == 0 then -- all langs
+  local f = io.popen("find langs/ -mindepth 1 -maxdepth 1 -type d")
+  local line = f:read("*l")
+  while line do
+    local lang = string.match(line, "^langs/(.*)$")
+    if lang then table.insert(p_langs, lang) end
+    line = f:read("*l")
+  end
+  f:close()
+
+  for _, lang in ipairs(p_langs) do
+    local ok, cfg = loadconfig("langs/"..lang.."/config.lua")
+    if ok then
+      langs[lang] = cfg
+    else
+      print(cfg)
+    end
+  end
+end
+
+print("host", host.title)
+
+measure_subproc({"ls", "-a"}, 5, host.step_delay)
+measure_subproc({"sleep", "3"}, 5, host.step_delay)
+measure_subproc({"sleep", "20"}, 5, host.step_delay)
+measure_subproc({"luajit", "-e", "while true do end"}, 5, host.step_delay)
+measure_subproc({"dsfslfdkjflk", "3"}, 5, host.step_delay)
