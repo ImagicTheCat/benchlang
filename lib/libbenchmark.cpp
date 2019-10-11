@@ -37,7 +37,7 @@ int subproc_step(subproc_t *p, void *buf, size_t count, int timeout)
 {
   // check end and fill resource usage data
   rusage rdata;
-  if(p->running && wait4(p->pid, &p->status, WNOHANG, &rdata)){
+  if(p->running && wait4(p->pid, &p->status, WNOHANG, &rdata) == p->pid){
     p->running = false;
     p->maxrss = rdata.ru_maxrss;
     p->utime = rdata.ru_utime.tv_usec*1e-6+rdata.ru_utime.tv_sec;

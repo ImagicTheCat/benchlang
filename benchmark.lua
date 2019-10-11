@@ -32,7 +32,7 @@ void subproc_close(subproc_t *p);
 double mclock();
 void set_signal_handler(void (*handler)(int));
 ]])
-local lib = ffi.load("benchmark")
+local lib = ffi.load("./libbenchmark.so")
 
 local subproc = ffi.new("subproc_t")
 
