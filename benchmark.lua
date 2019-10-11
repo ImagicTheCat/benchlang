@@ -1,5 +1,8 @@
 -- requires LuaJIT
 
+local ffi = require("ffi")
+local argparse = require("argparse")
+
 -- DEF
 
 -- return (true, ...) or (false, err) on failure
@@ -12,7 +15,6 @@ local function loadconfig(path)
   end
 end
 
-local ffi = require("ffi")
 local C = ffi.C
 ffi.cdef([[
 typedef struct{
@@ -84,38 +86,60 @@ end
 
 -- EXEC
 
--- params
-local phost, plang, penv, pwork, pimpl = ...
-if not phost then error("missing host") end
+local parser = argparse(unpack(arg))
+parser:argument("host", "Host profile name.")
+parser:option("-l --lang", "Languages."):count("*")
+parser:option("-w --work", "Works."):count("*")
+parser:option("-e --env", "Environments."):count("*")
+parser:option("-i --impl", "Implementations."):count("*")
+
+local params = parser:parse()
 
 -- load host
-local ok, host = loadconfig("hosts/"..phost..".lua")
+local ok, host = loadconfig("hosts/"..params.host..".lua")
 if not ok then error(host) end
 
 -- load langs
-local langs = {}
-local p_langs = {plang}
-if #p_langs == 0 then -- all langs
+if #params.lang == 0 then -- all langs
   local f = io.popen("find langs/ -mindepth 1 -maxdepth 1 -type d")
   local line = f:read("*l")
   while line do
     local lang = string.match(line, "^langs/(.*)$")
-    if lang then table.insert(p_langs, lang) end
+    if lang then table.insert(params.lang, lang) end
     line = f:read("*l")
   end
   f:close()
-
-  for _, lang in ipairs(p_langs) do
-    local ok, cfg = loadconfig("langs/"..lang.."/config.lua")
-    if ok then
-      langs[lang] = cfg
-    else
-      print(cfg)
-    end
-  end
 end
 
-print("host", host.title)
+local langs = {}
+for _, lang in ipairs(params.lang) do
+  local ok, cfg = loadconfig("langs/"..lang.."/config.lua")
+  if ok then
+    langs[lang] = cfg
+
+    -- load environments
+    local p_envs = {}
+    for _, env in ipairs(params.env) do table.insert(p_envs, env) end
+    if #p_envs == 0 then
+      local f = io.popen("find langs/"..lang.."/envs -mindepth 1 -maxdepth 1 -type f")
+      local line = f:read("*l")
+      while line do
+        local env = string.match(line, "^langs/.-/envs/(.*)%.lua$")
+        if env then table.insert(p_envs, env) end
+        line = f:read("*l")
+      end
+      f:close()
+    end
+
+    cfg.envs = {}
+    for _, env in ipairs(p_envs) do
+      local ok, ecfg = loadconfig("langs/"..lang.."/envs/"..env..".lua")
+      if ok then cfg.envs[env] = ecfg else print(ecfg) end
+    end
+  else
+    print(cfg)
+  end
+end
 
 measure_subproc({"ls", "-a"}, 5, host.step_delay)
 measure_subproc({"sleep", "3"}, 5, host.step_delay)
