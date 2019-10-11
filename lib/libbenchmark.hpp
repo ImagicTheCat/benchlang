@@ -4,12 +4,16 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <poll.h>
+#include <time.h>
+#include <signal.h>
 
 struct subproc_t{
   long int pid;
   int fd_read;
   bool running;
   int status;
+  double start_time;
+  double elapsed_time;
 };
 
 extern "C" {
@@ -24,5 +28,10 @@ int subproc_step(subproc_t *p, void *buf, size_t count, int timeout);
 
 // close fd_read
 void subproc_close(subproc_t *p);
+
+// clock_gettime(CLOCK_MONOTONIC, ...) in seconds
+double mclock();
+
+void set_signal_handler(void (*handler)(int));
 
 };
