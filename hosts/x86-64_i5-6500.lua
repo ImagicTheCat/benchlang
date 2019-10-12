@@ -6,6 +6,6 @@ i5-6500 3.6Gz
 8Go DDR4
   ]],
   measures = 3,
-  timeout = 60,
-  step_delay = 100
+  timeout = 60, -- process timeout, seconds
+  check_delay = 100 -- read/check process delay, milliseconds
 }
