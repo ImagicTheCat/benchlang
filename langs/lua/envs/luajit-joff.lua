@@ -10,5 +10,5 @@ return {
   ]],
   host_info = version,
   -- build = function(impl_path, tmp_path) return true end,
-  run_cmd = function(impl_path, tmp_path, ...) return path, impl_path, ... end
+  run_cmd = function(impl_path, tmp_path, ...) return path, "-joff", impl_path, ... end
 }

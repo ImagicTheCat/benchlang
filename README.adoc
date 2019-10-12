@@ -20,6 +20,8 @@ This project aims to be a tool, a collection of measures and a website about ben
 
 TIP: Any specific language, work, environment or implementation names can be specified to narrow the kind of results to produce. Already produced results are not recomputed unless the `--force -f` flag is used.
 
+WARNING: No safety/sandboxing is implemented for the executed scripts/programs.
+
 == Concepts
 
 Measures are generated in the `results/` directory for a specific host, a specific language, a specific environment, a specific work and a specific implementation of this work.
