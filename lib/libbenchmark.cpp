@@ -1,6 +1,8 @@
 
 #include "libbenchmark.hpp"
 
+subproc_t *h_subproc = NULL;
+
 bool subproc_create(char * const argv[], subproc_t *p)
 {
   int fd_pipe[2];
@@ -75,12 +77,19 @@ double mclock()
     return -1;
 }
 
-void set_signal_handler(void (*handler)(int))
+void subproc_signal_handler(int signum)
 {
+  if(h_subproc)
+    h_subproc->time = mclock()-h_subproc->start_time;
+}
+
+void bind_signal_handler(subproc_t *p)
+{
+  h_subproc = p;
   struct sigaction act;
 
   /* Set up the structure to specify the new action. */
-  act.sa_handler = handler;
+  act.sa_handler = subproc_signal_handler;
   sigemptyset(&act.sa_mask);
   act.sa_flags = 0;
   sigaction(SIGCHLD, &act, NULL);

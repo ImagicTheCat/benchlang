@@ -17,6 +17,8 @@ struct subproc_t{
   long maxrss;
 };
 
+extern subproc_t *h_subproc;
+
 extern "C" {
 
 // create sub-process
@@ -36,6 +38,6 @@ void subproc_close(subproc_t *p);
 // clock_gettime(CLOCK_MONOTONIC, ...) in seconds
 double mclock();
 
-void set_signal_handler(void (*handler)(int));
+void bind_signal_handler(subproc_t *p);
 
 };

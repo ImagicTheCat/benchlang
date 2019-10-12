@@ -33,16 +33,14 @@ int subproc_step(subproc_t *p, void *buf, size_t count, int timeout);
 void subproc_kill(subproc_t *p);
 void subproc_close(subproc_t *p);
 double mclock();
-void set_signal_handler(void (*handler)(int));
+void bind_signal_handler(subproc_t *p);
 ]])
 local lib = ffi.load("./libbenchmark.so")
 
 local subproc = ffi.new("subproc_t")
 
 -- capture end of child (subproc) process
-lib.set_signal_handler(function(signal)
-  subproc.time = lib.mclock()-subproc.start_time
-end)
+lib.bind_signal_handler(subproc);
 
 -- return output string or (nil, err) on failure
 local function measure_subproc(args, timeout, check_delay)
