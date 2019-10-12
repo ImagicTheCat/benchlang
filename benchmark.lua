@@ -151,6 +151,7 @@ local function measure_work(lang, env, work, impl)
           local f_out, err = io.open(dir.."/"..impl..".data", "w")
           if f_out then
             f_out:write(msgpack.pack(result))
+            f_out:close()
           else
             print(err)
           end
