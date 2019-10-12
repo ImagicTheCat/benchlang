@@ -132,6 +132,15 @@ local function measure_work(lang, env, work, impl)
                 measure.err = err
               end
 
+              if measure.err then
+                if measure.err == "status" then
+                  print("--", "error", measure.err, measure.status)
+                else
+                  print("--", "error", measure.err)
+                end
+              else
+                print("--", "time", measure.time.."s", "mem", measure.maxrss.." kB")
+              end
               table.insert(measures, measure)
             end
           end
