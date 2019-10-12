@@ -3,6 +3,23 @@
 
 This project aims to be a tool, a collection of measures and a website about benchmarking languages and their implementations. Measures are nice; interpretation of those measures is up to human beings.
 
+.Dependencies
+* GNU/Linux (may extend to POSIX systems)
+* g++
+* `find` command
+* LuaJIT
+* luarocks `lua-messagepack`, `argparse` (5.1)
+* anything that the environments require
+
+.Build
+* `./build.sh`
+
+.Usage
+* `luajit benchmark.lua -h`
+* `luajit benchmark.lua <host> [options]`
+
+TIP: Any specific language, work, environment or implementation names can be specified to narrow the kind of results to produce. Already produced results are not recomputed unless the `--force -f` flag is used.
+
 == Concepts
 
 Measures are generated in the `results/` directory for a specific host, a specific language, a specific environment, a specific work and a specific implementation of this work.
@@ -11,9 +28,13 @@ Measures are generated in the `results/` directory for a specific host, a specif
 
 A programming language.
 
+NOTE: It's a matter of choice to decide if language versions are defined as different languages or different environments; it may be better to have them as environments and hint the version in the implementation name.
+
 === Environment
 
 A specific language builder/VM/etc executing an implementation's source code.
+
+TIP: The script may use OS environment variables to adapt to the user system.
 
 === Work
 
@@ -23,6 +44,28 @@ Something that must be done by the languages; Different set of parameters and ex
 
 An implementation of a specific work in a specific language.
 
+All implementations will run in each language's environment, but they are not required to work on all of them; the result will just be invalid for those.
+
+TIP: Implementation's file name may contain anything concise and useful to identify it, but using the algorithm/work's name is useless; this information is already present in the file path.
+
 === Host
 
 Describes all the information about the machine/OS where the work is executed and common parameters used to generate the results for all languages.
+
+== File organization
+
+[horizontal]
+`works/<work>.lua`:: work files
+`langs/<lang>/config.lua`:: lang files
+`langs/<lang>/envs/<env>.lua`:: environment files
+`langs/<lang>/impls/<work>/<impl>`:: implementation files
+`results/<host>/<lang>/<env>/<work>/<impl>.data`:: result files
+
+== Results
+
+Multiple measures will probably be taken for each work/parameters couple, they will be aggregated for the website/reports.
+
+.Aggregation for final reported measures
+[horizontal]
+memory:: take maximum of all measures
+time:: take minimum of all measures
