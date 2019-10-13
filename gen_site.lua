@@ -38,7 +38,7 @@ local function getHost(host)
   local cfg = hosts[host]
   if cfg == nil then
     local ok
-    print("load host "..host)
+    print("load host: "..host)
     ok, cfg = loadconfig("hosts/"..host..".lua")
     if not ok then print(cfg) end
     hosts[host] = (ok and cfg or false)
@@ -51,7 +51,7 @@ local function getLang(lang)
   local cfg = langs[lang]
   if cfg == nil then
     local ok
-    print("load lang "..lang)
+    print("load lang: "..lang)
     ok, cfg = loadconfig("langs/"..lang.."/config.lua")
     if not ok then print(cfg) end
     cfg = (ok and cfg or false)
@@ -68,7 +68,7 @@ local function getEnv(lang, env)
     local cfg = lcfg.envs[env]
     if cfg == nil then
       local ok
-      print("load env "..lang.."/"..env)
+      print("load env: "..lang.."/"..env)
       ok, cfg = loadconfig("langs/"..lang.."/envs/"..env..".lua")
       if not ok then print(cfg) end
       cfg = (ok and cfg or false)
@@ -83,7 +83,7 @@ local function getWork(work)
   local cfg = works[work]
   if cfg == nil then
     local ok
-    print("load work "..work)
+    print("load work: "..work)
     ok, cfg = loadconfig("works/"..work..".lua")
     if not ok then print(cfg) end
     cfg = (ok and cfg or false)
@@ -116,5 +116,34 @@ for work, cfg in pairs(works) do
     f:close()
   else
     print(err)
+  end
+end
+
+-- write lang/env files
+
+for lang, cfg in pairs(langs) do
+  print("gen lang: "..lang)
+  os.execute("mkdir -p site/langs/"..lang.."/envs")
+
+  -- write lang file
+  local f, err = io.open("site/langs/"..lang.."/index.md", "w")
+  if f then
+    f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```")
+    f:close()
+  else
+    print(err)
+  end
+
+  -- write env files
+  for env, ecfg in pairs(cfg.envs) do
+    print("gen env: "..env)
+
+    local f, err = io.open("site/langs/"..lang.."/envs/"..env..".md", "w")
+    if f then
+      f:write("# "..ecfg.title.."\n\n```\n"..ecfg.description.."\n```")
+      f:close()
+    else
+      print(err)
+    end
   end
 end
