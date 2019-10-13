@@ -116,6 +116,33 @@ for _, captures in ipairs(results) do
   end
 end
 
+-- write index
+do
+  print("gen index")
+  local f, err = io.open("site/index.md", "w")
+  if f then
+    -- hosts index
+    f:write("# Benchlang\n\n## Hosts\n\n")
+    for host, cfg in pairs(hosts) do
+      f:write("* ["..cfg.title.."]({{site.baseurl}}/hosts/"..host..") - [results]({{site.baseurl}}/results/hosts/"..host..")\n")
+    end
+
+    -- langs index
+    f:write("\n\n## Languages\n\n")
+    for lang, cfg in pairs(langs) do
+      f:write("* ["..cfg.title.."]({{site.baseurl}}/langs/"..lang..")\n")
+    end
+
+    -- works index
+    f:write("\n\n## Works\n\n")
+    for work, cfg in pairs(works) do
+      f:write("* ["..cfg.title.."]({{site.baseurl}}/works/"..work..")\n")
+    end
+  else
+    print(err)
+  end
+end
+
 -- write host files
 os.execute("mkdir -p site/hosts")
 for host, cfg in pairs(hosts) do
@@ -164,22 +191,26 @@ for lang, cfg in pairs(langs) do
   -- write lang file
   local f, err = io.open("site/langs/"..lang.."/index.md", "w")
   if f then
-    f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```")
+    f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```\n\n## Environments\n\n")
+
+    -- write env files and lang-env index
+    for env, ecfg in pairs(cfg.envs) do
+      print("gen env: "..env)
+
+      f:write("* ["..ecfg.title.."]({{site.baseurl}}/langs/"..lang.."/envs/"..env..")\n")
+
+      local e_f, err = io.open("site/langs/"..lang.."/envs/"..env..".md", "w")
+      if e_f then
+        e_f:write("# "..ecfg.title.."\n\n```\n"..ecfg.description.."\n```")
+        e_f:close()
+      else
+        print(err)
+      end
+    end
+
     f:close()
   else
     print(err)
   end
 
-  -- write env files
-  for env, ecfg in pairs(cfg.envs) do
-    print("gen env: "..env)
-
-    local f, err = io.open("site/langs/"..lang.."/envs/"..env..".md", "w")
-    if f then
-      f:write("# "..ecfg.title.."\n\n```\n"..ecfg.description.."\n```")
-      f:close()
-    else
-      print(err)
-    end
-  end
 end
