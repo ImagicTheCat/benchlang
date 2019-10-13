@@ -1,6 +1,8 @@
 -- require LuaJIT
 -- generate some site data files
 
+local msgpack = require("MessagePack")
+
 print("generate site")
 
 -- popen followed by string match for each line
@@ -41,7 +43,9 @@ local function getHost(host)
     print("load host: "..host)
     ok, cfg = loadconfig("hosts/"..host..".lua")
     if not ok then print(cfg) end
-    hosts[host] = (ok and cfg or false)
+    cfg = (ok and cfg or false)
+    if cfg then cfg.env_infos = {} end
+    hosts[host] = cfg
   end
 
   return cfg
@@ -95,11 +99,43 @@ end
 
 -- GENERATE
 
-
 local results = popen_match("find results/ -type f", "^results/(.-)/(.-)/(.-)/(.-)/(.-)%.data$")
 for _, captures in ipairs(results) do
   local host, lang, env, work, impl = unpack(captures)
   local hcfg, lcfg, ecfg, wcfg = getHost(host), getLang(lang), getEnv(lang, env), getWork(work)
+
+  print("load result: ", table.concat(captures, "/"))
+  local f, err = io.open("results/"..table.concat(captures,"/",1,#captures-1).."/"..impl..".data", "rb")
+  if f then
+    local result = msgpack.unpack(f:read("*a"))
+
+    -- index env infos
+    if hcfg and lcfg and ecfg then hcfg.env_infos[lang.."/"..env] = result.host_info end
+  else
+    print(err)
+  end
+end
+
+-- write host files
+os.execute("mkdir -p site/hosts")
+for host, cfg in pairs(hosts) do
+  print("gen host: "..host)
+  local f, err = io.open("site/hosts/"..host..".md", "w")
+  if f then
+    f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```\n\n## Parameters\n\n")
+    f:write("```\nmeasures: "..cfg.measures.."\ntimeout: "..cfg.timeout.." s\ncheck delay: "..cfg.check_delay.." ms\n```\n\n")
+    f:write("## Environments\n\n")
+    for lang_env, info in pairs(cfg.env_infos) do
+      local lang, env = string.match(lang_env, "^(.-)/(.-)$")
+      local lcfg = getLang(lang)
+      local ecfg = getEnv(lang, env)
+      f:write("### ["..lcfg.title.."]({{site.baseurl}}/langs/"..lang..") / ["..ecfg.title.."]({{site.baseurl}}/langs/"..lang.."/envs/"..env..")\n\n```\n"..info.."\n```\n\n")
+    end
+
+    f:close()
+  else
+    print(err)
+  end
 end
 
 -- write work files
