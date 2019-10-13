@@ -1,6 +1,5 @@
 
 = TODO
 
-* results version, ensure same work conditions for fair comparisons
 * result report tool
 * website generation tool

@@ -101,9 +101,10 @@ local function measure_work(lang, env, work, impl)
 
         if built then
           local result = {
-            steps = {}
+            steps = {},
+            date = os.date(),
+            host_info = ecfg.host_info
           }
-          -- TODO: date, env host info, run command info
 
           -- measure steps
           for _, params in ipairs(wcfg.steps) do
@@ -155,6 +156,8 @@ local function measure_work(lang, env, work, impl)
           else
             print(err)
           end
+        else
+          print("--", "build failed")
         end
       end
     end
@@ -192,7 +195,7 @@ local params = parser:parse()
 
 -- load host
 local ok, _host = loadconfig("hosts/"..params.host..".lua")
-if not ok then error(host) else host = _host end
+if not ok then error(_host) else host = _host end
 host.name = params.host
 
 -- find works (params or find)
