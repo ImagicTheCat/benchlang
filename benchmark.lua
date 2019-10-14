@@ -96,10 +96,7 @@ local function measure_work(lang, env, work, impl)
         local tmp_path = "tmp/"
 
         -- build
-        local built = not ecfg.build
-        if not built then built = ecfg.build(impl_path, tmp_path) end
-
-        if built then
+        if ecfg.build(impl_path, tmp_path) then
           local result = {
             steps = {},
             date = os.date(),
