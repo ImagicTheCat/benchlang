@@ -3,6 +3,7 @@
 local ffi = require("ffi")
 local argparse = require("argparse")
 local msgpack = require("MessagePack")
+local sha2 = require("./extern/sha2/sha2")
 
 -- DEF
 
@@ -102,7 +103,8 @@ local function measure_work(lang, env, work, impl)
             date = os.date(),
             host_info = ecfg.host_info,
             work_version = wcfg.version,
-            env_version = ecfg.version
+            env_version = ecfg.version,
+            impl_hash = lcfg.works_impls[work][impl]
           }
 
           -- measure steps
@@ -117,17 +119,17 @@ local function measure_work(lang, env, work, impl)
               local args = {ecfg.run_cmd(impl_path, tmp_path, unpack(params))}
               print("--", unpack(args))
               local out, err = measure_subproc(args, host.timeout, host.check_delay)
-              measure.status = subproc.status
 
-              if out then
-                if wcfg.check(out, unpack(params)) then
-                  measure.maxrss = tonumber(subproc.maxrss)
-                  measure.time = subproc.time
-                  measure.stime = subproc.stime
-                  measure.utime = subproc.utime
-                else
-                  measure.err = "output"
-                end
+              if err ~= "spawn" then
+                measure.status = subproc.status
+                measure.maxrss = tonumber(subproc.maxrss)
+                measure.time = subproc.time
+                measure.stime = subproc.stime
+                measure.utime = subproc.utime
+              end
+
+              if out and not wcfg.check(out, unpack(params)) then
+                measure.err = "output"
               else
                 measure.err = err
               end
@@ -255,14 +257,24 @@ for _, lang in ipairs(params.lang) do
     -- find impls
     cfg.works_impls = {}
     for work in pairs(works) do
-      local impls = {}
+      local impls = {} -- map of impl => hash
       cfg.works_impls[work] = impls
 
-      for _, impl in ipairs(params.impl) do table.insert(impls, impl) end
+      local l_impls = {}
+      for _, impl in ipairs(params.impl) do table.insert(l_impls, impl) end
       if #impls == 0 then
         local f_impls = popen_match("find langs/"..lang.."/impls/"..work.." -type f", "^langs/.-/impls/.-/(.*)$")
         for _, captures in ipairs(f_impls) do
-          table.insert(impls, captures[1])
+          table.insert(l_impls, captures[1])
+        end
+      end
+
+      -- compute implementation hashes
+      for _, impl in ipairs(l_impls) do
+        local f = io.open("langs/"..lang.."/impls/"..work.."/"..impl)
+        if f then
+          impls[impl] = sha2.sha256(f:read("*a"))
+          f:close()
         end
       end
     end
@@ -284,18 +296,20 @@ do
   for lang, lcfg in pairs(langs) do
     for env, ecfg in pairs(lcfg.envs) do
       for work, impls in pairs(lcfg.works_impls) do
-        for _, impl in ipairs(impls) do
+        for impl, impl_hash in pairs(impls) do
           local wpath = {lang, env, work, impl}
 
           -- not already computed or force recomputation
           local todo = (params.force or not results[table.concat(wpath, "/")])
 
-          -- check result versions
+          -- check result versions/hashes
           if not todo then
             local f = io.open("results/"..host.name.."/"..table.concat(wpath, "/")..".data")
             if f then
               local result = msgpack.unpack(f:read("*a"))
-              todo = (result.env_version ~= ecfg.version or result.work_version ~= works[work].version)
+              todo = (result.env_version ~= ecfg.version
+                or result.work_version ~= works[work].version
+                or result.impl_hash ~= impl_hash)
             else
               todo = true -- couldn't read result data, recompute
             end

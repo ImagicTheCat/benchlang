@@ -1,0 +1,3 @@
+[submodule "extern/sha2"]
+	path = extern/sha2
+	url = https://github.com/Egor-Skriptunoff/pure_lua_SHA

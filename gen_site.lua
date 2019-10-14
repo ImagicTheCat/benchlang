@@ -2,6 +2,7 @@
 -- generate some site data files
 
 local msgpack = require("MessagePack")
+local sha2 = require("./extern/sha2/sha2")
 
 print("generate site")
 
@@ -44,7 +45,10 @@ local function getHost(host)
     ok, cfg = loadconfig("hosts/"..host..".lua")
     if not ok then print(cfg) end
     cfg = (ok and cfg or false)
-    if cfg then cfg.env_infos = {} end
+    if cfg then
+      cfg.env_infos = {}
+      cfg.works_results = {}
+    end
     hosts[host] = cfg
   end
 
@@ -108,9 +112,63 @@ for _, captures in ipairs(results) do
   local f, err = io.open("results/"..table.concat(captures,"/",1,#captures-1).."/"..impl..".data", "rb")
   if f then
     local result = msgpack.unpack(f:read("*a"))
+    f:close()
+
+    -- compute implementation hash
+    local impl_hash
+    local i_f = io.open(table.concat({lang, env, impl}, "/"))
+    if i_f then
+      impl_hash = sha2.sha256(i_f:read("*a"))
+      i_f:close()
+    end
 
     -- index env infos
     if hcfg and lcfg and ecfg then hcfg.env_infos[lang.."/"..env] = result.host_info end
+
+    -- index valid results
+    if hcfg and lcfg and ecfg and wcfg
+      and result.env_version == ecfg.version and result.work_version == wcfg.version -- check versions
+      and result.impl_hash == impl_hash then -- check hash
+
+      -- aggregate measures for each work step
+      local steps = {}
+      for step in ipairs(wcfg.steps) do
+        local measures = result.steps[step]
+        local ag = {}
+
+        for measure in ipairs(measures) do
+          if not measure.err then
+            ag.min_time = math.min(ag.min_time or measure.time, measure.time)
+            ag.min_stime = math.min(ag.min_stime or measure.stime, measure.stime)
+            ag.min_utime = math.min(ag.min_utime or measure.utime, measure.utime)
+            ag.max_maxrss = math.max(ag.max_maxrss or measure.maxrss, measure.maxrss)
+          else -- error
+            ag.err = measure.err
+            ag.status = measure.status
+
+            -- add available measures for more insight
+            ag.min_time = measure.time
+            ag.min_stime = measure.stime
+            ag.min_utime = measure.utime
+            ag.max_maxrss = measure.max_maxrss
+
+            break
+          end
+        end
+
+        table.insert(steps, ag)
+      end
+
+      hcfg.works_results[work] = {
+        data = result,
+        steps = steps,
+
+        host = host,
+        lang = lang,
+        env = env,
+        impl = impl
+      }
+    end
   else
     print(err)
   end
@@ -212,5 +270,23 @@ for lang, cfg in pairs(langs) do
   else
     print(err)
   end
+end
 
+-- write aggregated results per host/work
+
+do
+  local function sort_results(a, b)
+  end
+
+  for host, hcfg in pairs(hosts) do
+    for work, results in pairs(hcfg.works_results) do
+      local wcfg = getWork(work)
+      for step in ipairs(wcfg.steps) do -- each work step
+        local work_results = {}
+        table.insert(work_results, {
+          measure = results.steps[step], -- ...
+        })
+      end
+    end
+  end
 end
