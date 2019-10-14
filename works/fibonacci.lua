@@ -1,4 +1,5 @@
 return {
+  version = 1,
   title = "Fibonacci",
   description = [[
 A000045 OEIS

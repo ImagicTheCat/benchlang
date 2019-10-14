@@ -1,4 +1,5 @@
 return {
+  version = 1,
   title = "test",
   description = [[
 Test work.

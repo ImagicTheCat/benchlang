@@ -5,6 +5,7 @@ local version = f:read("*a")
 f:close()
 
 return {
+  version = 1,
   title = "LuaJIT",
   description = [[
   ]],

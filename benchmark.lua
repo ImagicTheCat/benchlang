@@ -100,7 +100,9 @@ local function measure_work(lang, env, work, impl)
           local result = {
             steps = {},
             date = os.date(),
-            host_info = ecfg.host_info
+            host_info = ecfg.host_info,
+            work_version = wcfg.version,
+            env_version = ecfg.version
           }
 
           -- measure steps
@@ -280,12 +282,26 @@ do
 
   -- build list of work to do
   for lang, lcfg in pairs(langs) do
-    for env in pairs(lcfg.envs) do
+    for env, ecfg in pairs(lcfg.envs) do
       for work, impls in pairs(lcfg.works_impls) do
         for _, impl in ipairs(impls) do
           local wpath = {lang, env, work, impl}
-          if params.force or not results[table.concat(wpath, "/")] then
-            -- not already computed or force recomputation
+
+          -- not already computed or force recomputation
+          local todo = (params.force or not results[table.concat(wpath, "/")])
+
+          -- check result versions
+          if not todo then
+            local f = io.open("results/"..host.name.."/"..table.concat(wpath, "/")..".data")
+            if f then
+              local result = msgpack.unpack(f:read("*a"))
+              todo = (result.env_version ~= ecfg.version or result.work_version ~= works[work].version)
+            else
+              todo = true -- couldn't read result data, recompute
+            end
+          end
+
+          if todo then
             table.insert(work_todo, wpath)
           end
         end

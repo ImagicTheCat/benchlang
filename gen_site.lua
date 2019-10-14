@@ -172,7 +172,7 @@ for work, cfg in pairs(works) do
   print("gen work: "..work)
   local f, err = io.open("site/works/"..work..".md", "w")
   if f then
-    f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```\n\n## Steps\n\n")
+    f:write("# "..cfg.title.."\n\n`version "..cfg.version.."`\n\n```\n"..cfg.description.."\n```\n\n## Steps\n\n")
     for i, args in ipairs(cfg.steps) do
       f:write("* `("..table.concat(args, ",")..")`\n")
     end
@@ -201,7 +201,7 @@ for lang, cfg in pairs(langs) do
 
       local e_f, err = io.open("site/langs/"..lang.."/envs/"..env..".md", "w")
       if e_f then
-        e_f:write("# "..ecfg.title.."\n\n```\n"..ecfg.description.."\n```")
+        e_f:write("# "..ecfg.title.."\n\n`version "..ecfg.version.."`\n\n```\n"..ecfg.description.."\n```")
         e_f:close()
       else
         print(err)

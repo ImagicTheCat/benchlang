@@ -5,6 +5,7 @@ local version = f:read("*a")
 f:close()
 
 return {
+  version = 1,
   title = "PUC-Lua 5.1",
   description = [[
   ]],
