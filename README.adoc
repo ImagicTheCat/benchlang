@@ -12,7 +12,15 @@ This project aims to be a tool, a collection of measures and a website about ben
 * anything that the environments require
 
 .Build
-* `./build.sh`
+[source, sh]
+----
+# build lib
+./build.sh
+
+# download submodules
+git submodule init
+git submodule update
+----
 
 .Usage
 * `luajit benchmark.lua -h`
