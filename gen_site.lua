@@ -4,6 +4,9 @@
 local msgpack = require("MessagePack")
 local sha2 = require("./extern/sha2/sha2")
 
+-- consts
+local FP = 3 -- float precision, number of decimals
+
 print("generate site")
 
 -- popen followed by string match for each line
@@ -335,26 +338,36 @@ do
         --- results
         s_f:write("\n\nrank | lang | env | status | time (s) | CPU user time (s) | CPU sys time (s) | mem (KB) | impl\n")
         s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
+
+        local lang_env_ignores = {}
+
+        -- generate entries
         for rank, entry in ipairs(step_results) do
           local r = entry.result
           local measure = r.steps[step]
           local lcfg = getLang(r.lang)
           local ecfg = getEnv(r.lang,r.env)
-          local err_str
-          if measure.err then
-            err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
-          else
-            err_str = "OK"
-          end
 
-          s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
-            .." | ["..ecfg.title.."]({{site.baseurl}}/langs/"..r.lang.."/envs/"..r.env..")"
-            .." | "..err_str
-            .." | "..(measure.min_time or "--")
-            .." | "..(measure.min_utime or "--")
-            .." | "..(measure.min_stime or "--")
-            .." | "..(measure.max_maxrss or "--")
-            .." | ["..r.impl.."]({{site.github.repository_url}}/blob/master/langs/"..r.lang.."/impls/"..work.."/"..r.impl..")\n")
+          -- avoid lang/env duplicates (take best implementation)
+          if not lang_env_ignores[r.lang.."/"..r.env] then
+            lang_env_ignores[r.lang.."/"..r.env] = true
+
+            local err_str
+            if measure.err then
+              err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
+            else
+              err_str = "OK"
+            end
+
+            s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
+              .." | ["..ecfg.title.."]({{site.baseurl}}/langs/"..r.lang.."/envs/"..r.env..")"
+              .." | "..err_str
+              .." | "..(measure.min_time and string.format("%."..FP.."f", measure.min_time) or "--")
+              .." | "..(measure.min_utime and string.format("%."..FP.."f", measure.min_utime) or "--")
+              .." | "..(measure.min_stime and string.format("%."..FP.."f", measure.min_stime) or "--")
+              .." | "..(measure.max_maxrss or "--")
+              .." | ["..r.impl.."]({{site.github.repository_url}}/blob/master/langs/"..r.lang.."/impls/"..work.."/"..r.impl..")\n")
+          end
         end
 
         s_f:close()
