@@ -11,7 +11,7 @@ git add site
 git commit -a -m "Prepare."
 
 # cleanup imported branch files
-git checkout dev -f
+git checkout master -f
 git checkout gh-pages
 
 git mv site/* .
