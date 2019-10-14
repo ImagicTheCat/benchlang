@@ -190,7 +190,7 @@ do
     -- hosts index
     f:write("# Benchlang\n\n## Hosts\n\n")
     for host, cfg in pairs(hosts) do
-      f:write("* ["..cfg.title.."]({{site.baseurl}}/hosts/"..host..") - [results]({{site.baseurl}}/results/hosts/"..host..")\n")
+      f:write("* ["..cfg.title.."]({{site.baseurl}}/hosts/"..host..") - [results]({{site.baseurl}}/results/"..host..")\n")
     end
 
     -- langs index
@@ -347,7 +347,7 @@ do
           end
 
           s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
-            .." | ["..ecfg.title.."]({{site.baseurl}}/langs/envs/"..r.env..")"
+            .." | ["..ecfg.title.."]({{site.baseurl}}/langs/"..r.lang.."/envs/"..r.env..")"
             .." | "..err_str
             .." | "..(measure.min_time or "--")
             .." | "..(measure.min_utime or "--")
