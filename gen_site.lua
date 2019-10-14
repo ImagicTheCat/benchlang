@@ -183,6 +183,8 @@ end
 -- write index
 do
   print("gen index")
+  os.execute("mkdir -p site/")
+
   local f, err = io.open("site/index.md", "w")
   if f then
     -- hosts index
