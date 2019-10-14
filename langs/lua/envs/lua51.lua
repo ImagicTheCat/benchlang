@@ -8,6 +8,9 @@ return {
   version = 1,
   title = "PUC-Lua 5.1",
   description = [[
+https://www.lua.org/
+
+Official VM implementation (5.1).
   ]],
   host_info = version,
   build = function(impl_path, tmp_path) return true end,

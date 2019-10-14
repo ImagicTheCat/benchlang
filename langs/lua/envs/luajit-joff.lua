@@ -6,8 +6,11 @@ f:close()
 
 return {
   version = 1,
-  title = "LuaJIT",
+  title = "LuaJIT -joff",
   description = [[
+http://luajit.org/luajit.html
+
+JIT compiler disabled.
   ]],
   host_info = version,
   build = function(impl_path, tmp_path) return true end,

@@ -1,4 +1,4 @@
-local path = os.getenv("LUAJIT_PATH") or "luajit"
+local path = os.getenv("LUA_PATH") or "lua"
 
 local f = io.popen(path.." -v")
 local version = f:read("*a")
@@ -6,9 +6,11 @@ f:close()
 
 return {
   version = 1,
-  title = "LuaJIT",
+  title = "PUC-Lua",
   description = [[
-http://luajit.org/luajit.html
+https://www.lua.org/
+
+Official VM implementation (latest).
   ]],
   host_info = version,
   build = function(impl_path, tmp_path) return true end,
