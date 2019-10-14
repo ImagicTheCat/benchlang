@@ -320,8 +320,9 @@ do
         -- write step results
         print("gen host/work/step results: "..host.."/"..work.."/"..step)
         local s_f = io.open("site/results/"..host.."/"..work.."/"..step..".md", "w")
-        --- host / work title
+        --- host / work title / header
         s_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") / ["..wcfg.title.."]({{site.baseurl}}/works/"..work..") results\n\n")
+        s_f:write("[:arrow_backward: back]({{site.baseurl}}/results/"..host..")\n")
         --- steps navigation
         for s_step, args in ipairs(wcfg.steps) do
           local title = "("..table.concat(args, ",")..")"
@@ -332,8 +333,8 @@ do
           end
         end
         --- results
-        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user time (s) | CPU sys time (s) | mem (KB)\n")
-        s_f:write("--- | --- | --- | --- | --- | --- | --- | ---\n")
+        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user time (s) | CPU sys time (s) | mem (KB) | impl\n")
+        s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
         for rank, entry in ipairs(step_results) do
           local r = entry.result
           local measure = r.steps[step]
@@ -352,7 +353,8 @@ do
             .." | "..(measure.min_time or "--")
             .." | "..(measure.min_utime or "--")
             .." | "..(measure.min_stime or "--")
-            .." | "..(measure.max_maxrss or "--").."\n")
+            .." | "..(measure.max_maxrss or "--")
+            .." | ["..r.impl.."]({{site.github.repository_url}}/blob/master/langs/"..r.lang.."/impls/"..work.."/"..r.impl..")\n")
         end
 
         s_f:close()
