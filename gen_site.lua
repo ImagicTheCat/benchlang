@@ -191,7 +191,12 @@ do
   local f, err = io.open("site/index.md", "w")
   if f then
     -- hosts index
-    f:write("# Benchlang\n\n## Hosts\n\n")
+    f:write("# Benchlang\n\n"..[[
+This project aims to be a tool, a collection of measures and a website about benchmarking languages and their implementations. Measures are nice; interpretation of those measures is up to human beings.
+
+More informations on the [project]({{site.github.repository_url}}) page.
+    ]])
+    f:write("\n\n## Hosts\n\n")
     for host, cfg in pairs(hosts) do
       f:write("* ["..cfg.title.."]({{site.baseurl}}/hosts/"..host..") - [results]({{site.baseurl}}/results/"..host..")\n")
     end
@@ -325,7 +330,7 @@ do
         local s_f = io.open("site/results/"..host.."/"..work.."/"..step..".md", "w")
         --- host / work title / header
         s_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") / ["..wcfg.title.."]({{site.baseurl}}/works/"..work..") results\n\n")
-        s_f:write("[:arrow_backward: back]({{site.baseurl}}/results/"..host..")\n")
+        s_f:write("[< back]({{site.baseurl}}/results/"..host..")\n")
         --- steps navigation
         for s_step, args in ipairs(wcfg.steps) do
           local title = "("..table.concat(args, ",")..")"
