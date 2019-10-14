@@ -116,7 +116,7 @@ for _, captures in ipairs(results) do
 
     -- compute implementation hash
     local impl_hash
-    local i_f = io.open(table.concat({lang, env, impl}, "/"))
+    local i_f, err = io.open("langs/"..lang.."/impls/"..work.."/"..impl)
     if i_f then
       impl_hash = sha2.sha256(i_f:read("*a"))
       i_f:close()
@@ -136,7 +136,7 @@ for _, captures in ipairs(results) do
         local measures = result.steps[step]
         local ag = {}
 
-        for measure in ipairs(measures) do
+        for _, measure in ipairs(measures) do
           if not measure.err then
             ag.min_time = math.min(ag.min_time or measure.time, measure.time)
             ag.min_stime = math.min(ag.min_stime or measure.stime, measure.stime)
@@ -159,7 +159,13 @@ for _, captures in ipairs(results) do
         table.insert(steps, ag)
       end
 
-      hcfg.works_results[work] = {
+      local work_results = hcfg.works_results[work]
+      if not work_results then
+        work_results = {}
+        hcfg.works_results[work] = work_results
+      end
+
+      table.insert(work_results, {
         data = result,
         steps = steps,
 
@@ -167,7 +173,7 @@ for _, captures in ipairs(results) do
         lang = lang,
         env = env,
         impl = impl
-      }
+      })
     end
   else
     print(err)
@@ -276,17 +282,81 @@ end
 
 do
   local function sort_results(a, b)
+    return a.err_mod < b.err_mod or (a.err_mod == b.err_mod and a.min_time < b.min_time)
   end
 
-  for host, hcfg in pairs(hosts) do
-    for work, results in pairs(hcfg.works_results) do
+  for host, hcfg in pairs(hosts) do -- each host
+    -- write host works index
+    os.execute("mkdir -p site/results/"..host)
+    print("gen host results: "..host)
+    local h_f = io.open("site/results/"..host.."/index.md", "w")
+    h_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") work results\n\n## Works\n\n")
+
+    for work, results in pairs(hcfg.works_results) do -- each work => results
       local wcfg = getWork(work)
-      for step in ipairs(wcfg.steps) do -- each work step
-        local work_results = {}
-        table.insert(work_results, {
-          measure = results.steps[step], -- ...
-        })
+
+      os.execute("mkdir -p site/results/"..host.."/"..work)
+      -- host work index: link to first step results
+      h_f:write("* ["..wcfg.title.."]({{site.baseurl}}/results/"..host.."/"..work.."/1)\n")
+
+      for step, args in ipairs(wcfg.steps) do -- each step
+        local step_results = {}
+
+        for _, result in ipairs(results) do
+          local measure = result.steps[step]
+
+          table.insert(step_results, {
+            err_mod = measure.err and 1 or 0,
+            min_time = measure.min_time or 0,
+            result = result
+          })
+        end
+
+        -- sort results
+        table.sort(step_results, sort_results)
+
+        -- write step results
+        print("gen host/work/step results: "..host.."/"..work.."/"..step)
+        local s_f = io.open("site/results/"..host.."/"..work.."/"..step..".md", "w")
+        --- host / work title
+        s_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") / ["..wcfg.title.."]({{site.baseurl}}/works/"..work..") results\n\n")
+        --- steps navigation
+        for s_step, args in ipairs(wcfg.steps) do
+          local title = "("..table.concat(args, ",")..")"
+          if s_step == step then -- active page
+            s_f:write("* "..title.."\n")
+          else
+            s_f:write("* ["..title.."]({{site.baseurl}}/results/"..host.."/"..work.."/"..s_step..")\n")
+          end
+        end
+        --- results
+        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user time (s) | CPU sys time (s) | mem (KB)\n")
+        s_f:write("--- | --- | --- | --- | --- | --- | --- | ---\n")
+        for rank, entry in ipairs(step_results) do
+          local r = entry.result
+          local measure = r.steps[step]
+          local lcfg = getLang(r.lang)
+          local ecfg = getEnv(r.lang,r.env)
+          local err_str
+          if measure.err then
+            err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
+          else
+            err_str = "OK"
+          end
+
+          s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
+            .." | ["..ecfg.title.."]({{site.baseurl}}/langs/envs/"..r.env..")"
+            .." | "..err_str
+            .." | "..(measure.min_time or "--")
+            .." | "..(measure.min_utime or "--")
+            .." | "..(measure.min_stime or "--")
+            .." | "..(measure.max_maxrss or "--").."\n")
+        end
+
+        s_f:close()
       end
     end
+
+    h_f:close()
   end
 end
