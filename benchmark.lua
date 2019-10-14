@@ -327,7 +327,7 @@ end
 -- do measures
 os.execute("mkdir -p tmp")
 os.execute("mkdir -p results/"..host.name)
-print(#work_todo.." implementation(s) to measure.")
+print(#work_todo.." result(s) to compute.")
 for _, wpath in ipairs(work_todo) do
   measure_work(unpack(wpath))
 end
