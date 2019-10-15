@@ -1,8 +1,9 @@
 return {
   version = 1,
-  title = "Fibonacci",
+  title = "Fibonacci (naive recursion)",
   description = [[
-Test work.
+The goal is to measure performance of a recursive function pattern like Fibonacci.
+It should be implemented as close as possible to the following mathematical function.
 
 A000045 OEIS
 Fibonacci numbers: F(n) = F(n-1) + F(n-2) with F(0) = 0 and F(1) = 1.
