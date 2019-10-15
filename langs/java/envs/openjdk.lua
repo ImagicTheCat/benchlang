@@ -2,11 +2,11 @@
 local p_javac = os.getenv("OPENJDK_JAVAC_PATH") or "javac"
 local p_java = os.getenv("OPENJDK_JAVA_PATH") or "java"
 
-local f = io.popen(p_javac.." -version")
+local f = io.popen(p_javac.." -version 2>&1")
 local info = f:read("*a")
 f:close()
 
-f = io.popen(p_java.." -version")
+f = io.popen(p_java.." -version 2>&1")
 local info = info.."\n"..f:read("*a")
 f:close()
 

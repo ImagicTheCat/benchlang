@@ -1,6 +1,6 @@
 local path = os.getenv("LUA51_PATH") or "lua5.1"
 
-local f = io.popen(path.." -v")
+local f = io.popen(path.." -v 2>&1")
 local version = f:read("*a")
 f:close()
 
