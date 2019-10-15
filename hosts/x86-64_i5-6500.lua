@@ -4,6 +4,8 @@ return {
 OS: 4.9.11-1-ARCH x86_64 GNU/Linux (Archlinux)
 CPU: i5-6500 3.6Gz
 RAM: 8Go DDR4
+
+Maintained by ImagicTheCat.
   ]],
   measures = 3,
   timeout = 60, -- process timeout, seconds
