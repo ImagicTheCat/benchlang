@@ -94,7 +94,7 @@ local function measure_work(lang, env, work, impl)
       if wcfg then
         print("build and run measures", lang, env, work, impl)
         local impl_path = "langs/"..lang.."/impls/"..work.."/"..impl
-        local tmp_path = "tmp/"
+        local tmp_path = "tmp"
 
         -- build
         if ecfg.build(impl_path, tmp_path) then
