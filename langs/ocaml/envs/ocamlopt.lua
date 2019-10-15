@@ -7,7 +7,7 @@ f:close()
 
 return {
   version = 1,
-  title = "ocamlrun",
+  title = "ocamlopt",
   description = [[
 https://ocaml.org/
 
