@@ -22,8 +22,6 @@ https://openjdk.java.net/
     if os.execute("cp "..impl_path.." "..tmp_path.."/benchlang.java") == 0 then -- copy file
       return os.execute(p_javac.." "..tmp_path.."/benchlang.java") == 0 -- compile
     end
-
-    return false
   end,
   run_cmd = function(impl_path, tmp_path, ...) return p_java, "-cp", tmp_path, "benchlang", ... end
 }
