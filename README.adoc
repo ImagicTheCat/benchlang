@@ -1,3 +1,12 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:toc: left
+:toclevels: 5
 
 = benchlang
 
@@ -36,6 +45,8 @@ WARNING: No safety/sandboxing is implemented for the executed scripts/programs.
 
 Measures are generated in the `results/` directory for a specific host, a specific language, a specific environment, a specific work and a specific implementation of this work.
 
+Each result file is bound to a specific work/environment's version and an implementation's content (hash), if they change, the result file will be ignored by the site/reports (and recomputed by the benchmark script).
+
 === Language
 
 A programming language.
@@ -64,9 +75,29 @@ TIP: Implementation's file name may contain anything concise and useful to ident
 
 Describes all the information about the machine/OS where the work is executed and common parameters used to generate the results for all languages.
 
+== Contributions
+
+Contributions of hosts, results, works, languages, environments and implementations are welcomed.
+
+.Notes
+hosts, results:: specific host and results for this host should probably be maintained by the same machine owner
+languages, environments:: when adding a new language, add a basic standard environment
+implementations::
++
+--
+* changes to an existing implementation will invalidate all computed results, forking the implementation may be a better practice
+* implementations should explicit their own license/authors in the source file (when they don't, they are direct parts of the project and use the same license)
+* they should not be tuned to specific work steps' parameters, but can be tuned for general practical parameters
+* they should only use features generally expected to be available for specific hosts, language and environments they might run in (in other words, avoid being tuned for the benchmark environment)
+* they should comply to the associated work rules (constraints, etc)
+
+NOTE: Some works may impose constraints to narrow the things to measure, others may give complete freedom to make the implementation as good as possible (looking at the best implementations may give insight about the complexity of such codes and if it's worth the effort).
+--
+
 == File organization
 
 [horizontal]
+`hosts/<host>.lua`:: host files
 `works/<work>.lua`:: work files
 `langs/<lang>/config.lua`:: lang files
 `langs/<lang>/envs/<env>.lua`:: environment files
