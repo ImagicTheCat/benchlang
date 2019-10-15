@@ -1,6 +1,6 @@
 return {
   title = "JavaScript",
   description = [[
-https://fr.wikipedia.org/wiki/JavaScript
+https://en.wikipedia.org/wiki/JavaScript
   ]]
 }
