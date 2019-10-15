@@ -33,11 +33,14 @@ git submodule init
 git submodule update
 ----
 
-.Usage
-* `luajit benchmark.lua -h`
-* `luajit benchmark.lua <host> [options]`
+.Usage examples
+[horizontal]
+help:: `luajit benchmark.lua -h`
+basic usage:: `luajit benchmark.lua <host> [options]`
+test an implementation:: `luajit benchmark.lua my_host -lc -e gcc -w fibonacci-nr -i my_impl.c`
+comparison:: `luajit benchmark.lua my_host -w fibonacci-nr -llua -lc`
 
-TIP: Any specific language, work, environment or implementation names can be specified to narrow the kind of results to produce. Already produced results are not recomputed unless the `--force -f` flag is used.
+TIP: Any specific language, work, environment or implementation names can be specified to narrow the kind of results to produce. Already valid produced results are not recomputed unless the `--force -f` flag is used.
 
 WARNING: No safety/sandboxing is implemented for the executed scripts/programs.
 
@@ -80,7 +83,7 @@ Describes all the information about the machine/OS where the work is executed an
 Contributions of hosts, results, works, languages, environments and implementations are welcomed.
 
 .Notes
-hosts, results:: specific host and results for this host should probably be maintained by the same machine owner
+hosts, results:: specific host and associated results should probably be maintained by the same machine owner
 languages, environments:: when adding a new language, add a basic standard environment
 implementations::
 +
@@ -88,10 +91,10 @@ implementations::
 * changes to an existing implementation will invalidate all computed results, forking the implementation may be a better practice
 * implementations should explicit their own license/authors in the source file (when they don't, they are direct parts of the project and use the same license)
 * they should not be tuned to specific work steps' parameters, but can be tuned for general practical parameters
-* they should only use features generally expected to be available for specific hosts, language and environments they might run in (in other words, avoid being tuned for the benchmark environment)
+* they should only use features generally expected to be available for specific the hosts, language and environments they might run in (in other words, avoid being tuned for the benchmark environment)
 * they should comply to the associated work rules (constraints, etc)
 
-NOTE: Some works may impose constraints to narrow the things to measure, others may give complete freedom to make the implementation as good as possible (looking at the best implementations may give insight about the complexity of such codes and if it's worth the effort).
+NOTE: Some works may impose constraints to narrow the meaning of measures, others may give complete freedom to make the implementation as good as possible (looking at the best implementations may give insight about the complexity of such codes and if it's worth the effort).
 --
 
 == File organization
