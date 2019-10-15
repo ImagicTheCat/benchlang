@@ -90,8 +90,8 @@ implementations::
 --
 * changes to an existing implementation will invalidate all computed results, forking the implementation may be a better practice
 * implementations should explicit their own license/authors in the source file (when they don't, they are direct parts of the project and use the same license)
-* they should not be tuned to specific work steps' parameters, but can be tuned for general practical parameters
-* they should only use features generally expected to be available for specific the hosts, language and environments they might run in (in other words, avoid being tuned for the benchmark environment)
+* they should not be tuned for specific work steps' parameters, but can be tuned for general practical parameters
+* they should only use features generally expected to be available for the specific hosts, language and environments they might run in (in other words, avoid being tuned for the benchmark environment)
 * they should comply to the associated work rules (constraints, etc)
 
 NOTE: Some works may impose constraints to narrow the meaning of measures, others may give complete freedom to make the implementation as good as possible (looking at the best implementations may give insight about the complexity of such codes and if it's worth the effort).
@@ -113,5 +113,5 @@ Multiple measures will probably be taken for each work/parameters couple, they w
 
 .Aggregation for final reported measures
 [horizontal]
-memory:: take maximum of all measures
-time:: take minimum of all measures
+memory:: maximum of all measures
+time:: minimum of all measures
