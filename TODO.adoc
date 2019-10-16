@@ -2,3 +2,5 @@
 = TODO
 
 * improve site generation source and output
+* potential incremental hash generation and comparison for big work outputs
+* command line options to remove lang, env, work or impl
