@@ -6,7 +6,7 @@ f:close()
 
 return {
   version = 1,
-  title = "GCC g++ -O3",
+  title = "GCC -O3",
   description = [[
 https://gcc.gnu.org/
 

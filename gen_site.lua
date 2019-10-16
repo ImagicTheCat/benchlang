@@ -341,7 +341,7 @@ do
           end
         end
         --- results
-        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user time (s) | CPU sys time (s) | mem (KB) | impl\n")
+        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user (s) | CPU sys (s) | mem (KB) | impl\n")
         s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
 
         local lang_env_ignores = {}

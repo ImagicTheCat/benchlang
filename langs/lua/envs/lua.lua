@@ -6,7 +6,7 @@ f:close()
 
 return {
   version = 1,
-  title = "PUC-Lua",
+  title = "PUC",
   description = [[
 https://www.lua.org/
 
