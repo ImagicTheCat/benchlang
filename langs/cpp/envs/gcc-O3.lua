@@ -10,7 +10,7 @@ return {
   description = [[
 https://gcc.gnu.org/
 
-Optimized.
+Speed optimizations.
   ]],
   host_info = version,
   build = function(impl_path, tmp_path)
