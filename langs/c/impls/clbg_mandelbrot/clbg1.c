@@ -1,0 +1,134 @@
+/*
+Revised BSD license
+
+This is a specific instance of the Open Source Initiative (OSI) BSD license template
+http://www.opensource.org/licenses/bsd-license.php
+
+
+Copyright © 2004-2008 Brent Fulgham, 2005-2019 Isaac Gouy
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+   Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+   Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+   Neither the name of "The Computer Language Benchmarks Game" nor the name of "The Computer Language Benchmarks Game Benchmarks" nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/* The Computer Language Benchmarks Game
+ * https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
+
+  contributed by Paolo Bonzini
+  further optimized by Jason Garrett-Glaser
+  pthreads added by Eckehard Berns
+  further optimized by Ryan Henszey
+  modified by Samy Al Bahra (use GCC atomic builtins)
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+typedef double v2df __attribute__ ((vector_size(16))); /* vector of two doubles */
+typedef int v4si __attribute__ ((vector_size(16))); /* vector of four ints */
+
+// 4 works best on a quiet machine at nice -20
+// 8 on a noisy machine at default priority
+#define NWORKERS 8
+
+int w, h;
+v2df zero = { 0.0, 0.0 };
+v2df four = { 4.0, 4.0 };
+v2df nzero;
+double inverse_w;
+double inverse_h;
+
+char *whole_data;
+int y_pick;
+
+static void * worker(void *_args) {
+    char *data;
+    double x, y;
+    int bit_num;
+    char byte_acc = 0;
+
+    for (;;) {
+	y = __sync_fetch_and_add(&y_pick, 1);
+        if (y >= h)
+            return NULL;
+        data = &whole_data[(w >> 3) * (int)y];
+
+        for(bit_num=0,x=0;x<w;x+=2)
+        {
+            v2df Crv = { (x+1.0)*inverse_w-1.5, (x)*inverse_w-1.5 };
+            v2df Civ = { y*inverse_h-1.0, y*inverse_h-1.0 };
+            v2df Zrv = { 0.0, 0.0 };
+            v2df Ziv = { 0.0, 0.0 };
+            v2df Trv = { 0.0, 0.0 };
+            v2df Tiv = { 0.0, 0.0 };
+
+            int i = 0;
+	    int mask;
+            do {
+                Ziv = (Zrv*Ziv) + (Zrv*Ziv) + Civ;
+                Zrv = Trv - Tiv + Crv;
+                Trv = Zrv * Zrv;
+                Tiv = Ziv * Ziv;
+
+                /* from mandelbrot C++ GNU g++ #5 program  */
+		v2df delta = (v2df)__builtin_ia32_cmplepd( (Trv + Tiv), four );
+		mask = __builtin_ia32_movmskpd(delta);
+
+            } while (++i < 50 && (mask));
+
+            byte_acc <<= 2;
+	    byte_acc |= mask;
+            bit_num+=2;
+
+            if(!(bit_num&7)) {
+                data[(bit_num>>3) - 1] = byte_acc;
+                byte_acc = 0;
+            }
+        }
+
+        if(bit_num&7) {
+            byte_acc <<= (8-w%8);
+            bit_num += 8;
+            data[bit_num>>3] = byte_acc;
+            byte_acc = 0;
+        }
+    }
+}
+
+
+int main (int argc, char **argv)
+{
+    pthread_t ids[NWORKERS];
+    int i;
+
+    nzero = -zero;
+
+    w = h = atoi(argv[1]);
+
+    inverse_w = 2.0 / w;
+    inverse_h = 2.0 / h;
+
+    y_pick = 0;
+    whole_data = malloc(w * (w >> 3));
+
+    for (i = 0; i < NWORKERS; i++)
+        pthread_create(&ids[i], NULL, worker, NULL);
+    for (i = 0; i < NWORKERS; i++)
+        pthread_join(ids[i], NULL);
+
+    printf("P4\n%d %d\n",w,h);
+    fwrite(whole_data, h, w >> 3, stdout);
+
+    free(whole_data);
+
+    return 0;
+}
