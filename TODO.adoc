@@ -2,5 +2,6 @@
 = TODO
 
 * improve site generation source and output
-* potential incremental hash generation and comparison for big work outputs
 * command line options to remove lang, env, work or impl
+* !BENCHLANG(VAR)=[...] to set env variables from implementations
+* site lang best results, lang/env best results and complete results pages
