@@ -43,8 +43,9 @@ local subproc = ffi.new("subproc_t")
 -- capture end of child (subproc) process
 lib.bind_signal_handler(subproc);
 
+-- hash_output: true to return sha256 of the output, false for plain output
 -- return output string or (nil, err) on failure
-local function measure_subproc(args, timeout, check_delay)
+local function measure_subproc(args, timeout, check_delay, hash_output)
   -- convert to C args
   if #args < 1 then return end
   local cargs = ffi.new("const char*[?]", #args+1, args)
@@ -52,14 +53,20 @@ local function measure_subproc(args, timeout, check_delay)
 
   -- create sub process
   if lib.subproc_create(ffi.cast("char * const*", cargs), subproc) then
-    local outs = {}
+    local outs = (hash_output and sha2.sha256() or {})
     local data = ffi.new("char[4096]")
 
     -- read output, check for timeout
     local n = lib.subproc_step(subproc, data, 4096, check_delay)
 
     while n ~= 0 or subproc.running do -- read all output and wait end of process
-      if n > 0 then table.insert(outs, ffi.string(data, n)) end -- append output
+      if n > 0 then -- append output
+        if hash_output then
+          outs(ffi.string(data, n))
+        else
+          table.insert(outs, ffi.string(data, n))
+        end
+      end
 
       -- timeout check
       if lib.mclock()-subproc.start_time > timeout then
@@ -73,7 +80,8 @@ local function measure_subproc(args, timeout, check_delay)
 
     if subproc.status ~= 0 then return nil, "status" end
 
-    return table.concat(outs)
+    -- return hash or plain output
+    if hash_output then return outs() else return table.concat(outs) end
   else
     return nil, "spawn"
   end
@@ -108,7 +116,7 @@ local function measure_work(lang, env, work, impl)
           }
 
           -- measure steps
-          for _, params in ipairs(wcfg.steps) do
+          for step, params in ipairs(wcfg.steps) do
             local measures = {}
             table.insert(result.steps, measures)
 
@@ -118,7 +126,9 @@ local function measure_work(lang, env, work, impl)
               local measure = {}
               local args = {ecfg.run_cmd(impl_path, tmp_path, unpack(params))}
               print("--", unpack(args))
-              local out, err = measure_subproc(args, host.timeout, host.check_delay)
+
+              local hash_output = (type(wcfg.check) == "table")
+              local out, err = measure_subproc(args, host.timeout, host.check_delay, hash_output)
 
               if err ~= "spawn" then
                 measure.status = subproc.status
@@ -128,8 +138,10 @@ local function measure_work(lang, env, work, impl)
                 measure.utime = subproc.utime
               end
 
-              if out and not wcfg.check(out, unpack(params)) then
-                measure.err = "output"
+              if out then
+                if (hash_output and wcfg.check[step] ~= out) or (not hash_output and not wcfg.check(out, unpack(params))) then
+                  measure.err = "output"
+                end
               else
                 measure.err = err
               end
@@ -262,7 +274,7 @@ for _, lang in ipairs(params.lang) do
 
       local l_impls = {}
       for _, impl in ipairs(params.impl) do table.insert(l_impls, impl) end
-      if #impls == 0 then
+      if #l_impls == 0 then
         local f_impls = popen_match("find langs/"..lang.."/impls/"..work.." -type f", "^langs/.-/impls/.-/(.*)$")
         for _, captures in ipairs(f_impls) do
           table.insert(l_impls, captures[1])
