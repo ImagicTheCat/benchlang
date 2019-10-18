@@ -13,8 +13,8 @@ https://golang.org/
 Go tools.
   ]],
   host_info = version,
-  build = function(impl_path, tmp_path)
-    return os.execute(path.." tool compile -o "..tmp_path.."/go.o "..impl_path.." && go tool link -o "..tmp_path.."/run "..tmp_path.."/go.o") == 0
+  build = function(e)
+    return os.execute(path.." tool compile -o "..e.p_tmp.."/go.o "..e.p_impl.." && go tool link -o "..e.p_tmp.."/run "..e.p_tmp.."/go.o") == 0
   end,
-  run_cmd = function(impl_path, tmp_path, ...) return tmp_path.."/run", ... end
+  run_cmd = function(e, ...) return e.p_tmp.."/run", ... end
 }

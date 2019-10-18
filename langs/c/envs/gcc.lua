@@ -9,10 +9,13 @@ return {
   title = "GCC",
   description = [[
 https://gcc.gnu.org/
+
+IMPL VARS:
+- LIBS: GCC lib link flags
   ]],
   host_info = version,
-  build = function(impl_path, tmp_path)
-    return os.execute(path.." "..impl_path.." -o "..tmp_path.."/run") == 0
+  build = function(e)
+    return os.execute(path.." "..e.p_impl.." -o "..e.p_tmp.."/run "..(e.vars.LIBS or "")) == 0
   end,
-  run_cmd = function(impl_path, tmp_path, ...) return tmp_path.."/run", ... end
+  run_cmd = function(e, ...) return e.p_tmp.."/run", ... end
 }

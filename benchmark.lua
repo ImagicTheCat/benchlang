@@ -101,18 +101,31 @@ local function measure_work(lang, env, work, impl)
       local wcfg = works[work]
       if wcfg then
         print("build and run measures", lang, env, work, impl)
-        local impl_path = "langs/"..lang.."/impls/"..work.."/"..impl
-        local tmp_path = "tmp"
+        local impl_data = lcfg.works_impls[work][impl]
+
+        local env_params = {
+          p_impl = "langs/"..lang.."/impls/"..work.."/"..impl,
+          p_tmp = "tmp",
+          vars = {}
+        }
+
+        -- select env vars
+        for _, var in ipairs(impl_data.vars) do
+          local v_host, v_env, k, v = unpack(var)
+          if (#v_host == 0 or v_host == host.name) and (#v_env == 0 or env == v_env) then
+            env_params.vars[k] = v
+          end
+        end
 
         -- build
-        if ecfg.build(impl_path, tmp_path) then
+        if ecfg.build(env_params) then
           local result = {
             steps = {},
             date = os.date(),
             host_info = ecfg.host_info,
             work_version = wcfg.version,
             env_version = ecfg.version,
-            impl_hash = lcfg.works_impls[work][impl]
+            impl_hash = impl_data.hash
           }
 
           -- measure steps
@@ -124,7 +137,7 @@ local function measure_work(lang, env, work, impl)
 
             for i=1,host.measures do -- sub measures
               local measure = {}
-              local args = {ecfg.run_cmd(impl_path, tmp_path, unpack(params))}
+              local args = {ecfg.run_cmd(env_params, unpack(params))}
               print("--", unpack(args))
 
               local hash_output = (type(wcfg.check) == "table")
@@ -269,7 +282,7 @@ for _, lang in ipairs(params.lang) do
     -- find impls
     cfg.works_impls = {}
     for work in pairs(works) do
-      local impls = {} -- map of impl => hash
+      local impls = {} -- map of impl => data {.hash, .vars}
       cfg.works_impls[work] = impls
 
       local l_impls = {}
@@ -281,11 +294,24 @@ for _, lang in ipairs(params.lang) do
         end
       end
 
-      -- compute implementation hashes
+      -- compute implementations data
       for _, impl in ipairs(l_impls) do
         local f = io.open("langs/"..lang.."/impls/"..work.."/"..impl)
         if f then
-          impls[impl] = sha2.sha256(f:read("*a"))
+          local data = {}
+          impls[impl] = data
+
+          local content = f:read("*a")
+
+          -- compute hash
+          data.hash = sha2.sha256(content)
+
+          -- parse vars
+          data.vars = {}
+          for host, env, k, v in string.gmatch(content, "!BENCHLANG:(.-):(.-)%((.-)%)=%[(.-)%]") do
+            table.insert(data.vars, {host, env, k, v})
+          end
+
           f:close()
         end
       end
@@ -308,7 +334,7 @@ do
   for lang, lcfg in pairs(langs) do
     for env, ecfg in pairs(lcfg.envs) do
       for work, impls in pairs(lcfg.works_impls) do
-        for impl, impl_hash in pairs(impls) do
+        for impl, impl_data in pairs(impls) do
           local wpath = {lang, env, work, impl}
 
           -- not already computed or force recomputation
@@ -321,7 +347,7 @@ do
               local result = msgpack.unpack(f:read("*a"))
               todo = (result.env_version ~= ecfg.version
                 or result.work_version ~= works[work].version
-                or result.impl_hash ~= impl_hash)
+                or result.impl_hash ~= impl_data.hash)
             else
               todo = true -- couldn't read result data, recompute
             end

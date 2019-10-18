@@ -18,10 +18,10 @@ return {
 https://openjdk.java.net/
   ]],
   host_info = info,
-  build = function(impl_path, tmp_path)
-    if os.execute("cp "..impl_path.." "..tmp_path.."/benchlang.java") == 0 then -- copy file
-      return os.execute(p_javac.." "..tmp_path.."/benchlang.java") == 0 -- compile
+  build = function(e)
+    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/benchlang.java") == 0 then -- copy file
+      return os.execute(p_javac.." "..e.p_tmp.."/benchlang.java") == 0 -- compile
     end
   end,
-  run_cmd = function(impl_path, tmp_path, ...) return p_java, "-cp", tmp_path, "benchlang", ... end
+  run_cmd = function(e, ...) return p_java, "-cp", e.p_tmp, "benchlang", ... end
 }

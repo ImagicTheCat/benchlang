@@ -18,10 +18,10 @@ https://ocaml.org/
 OCaml bytecode interpreter.
   ]],
   host_info = info,
-  build = function(impl_path, tmp_path)
-    if os.execute("cp "..impl_path.." "..tmp_path.."/source.ml") == 0 then -- copy
-      return os.execute("(cd "..tmp_path.." && "..p_ocamlc.." source.ml -o run)") == 0
+  build = function(e)
+    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/source.ml") == 0 then -- copy
+      return os.execute("(cd "..e.p_tmp.." && "..p_ocamlc.." source.ml -o run)") == 0
     end
   end,
-  run_cmd = function(impl_path, tmp_path, ...) return p_ocamlrun, tmp_path.."/run", ... end
+  run_cmd = function(e, ...) return p_ocamlrun, e.p_tmp.."/run", ... end
 }

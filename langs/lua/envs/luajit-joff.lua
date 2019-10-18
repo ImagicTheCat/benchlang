@@ -13,6 +13,6 @@ http://luajit.org/luajit.html
 JIT compiler disabled.
   ]],
   host_info = version,
-  build = function(impl_path, tmp_path) return true end,
-  run_cmd = function(impl_path, tmp_path, ...) return path, "-joff", impl_path, ... end
+  build = function(e) return true end,
+  run_cmd = function(e, ...) return path, "-joff", e.p_impl, ... end
 }

@@ -17,8 +17,8 @@ return {
 https://www.mono-project.com/
   ]],
   host_info = info,
-  build = function(impl_path, tmp_path)
-    return os.execute(c_path.." -out:"..tmp_path.."/run "..impl_path) == 0
+  build = function(e)
+    return os.execute(c_path.." -out:"..e.p_tmp.."/run "..e.p_impl) == 0
   end,
-  run_cmd = function(impl_path, tmp_path, ...) return r_path, tmp_path.."/run", ... end
+  run_cmd = function(e, ...) return r_path, e.p_tmp.."/run", ... end
 }

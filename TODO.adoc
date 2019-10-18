@@ -3,4 +3,3 @@
 
 * improve site generation source and output
 * command line options to remove lang, env, work or impl
-* !BENCHLANG(VAR)=[...] to set env variables from implementations
