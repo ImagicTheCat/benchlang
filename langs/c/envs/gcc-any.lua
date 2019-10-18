@@ -10,6 +10,8 @@ return {
   description = [[
 https://gcc.gnu.org/
 
+Any custom flags allowed.
+
 IMPL VARS:
 - LIBS: GCC lib link flags
 - OPTS: GCC options
