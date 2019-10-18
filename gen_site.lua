@@ -307,7 +307,7 @@ do
 
       os.execute("mkdir -p site/results/"..host.."/"..work)
       -- host work index: link to first step results
-      h_f:write("* ["..wcfg.title.."]({{site.baseurl}}/results/"..host.."/"..work.."/1)\n")
+      h_f:write("* ["..wcfg.title.."]({{site.baseurl}}/results/"..host.."/"..work.."/1-2)\n")
 
       for step, args in ipairs(wcfg.steps) do -- each step
         local step_results = {}
@@ -327,23 +327,35 @@ do
 
         -- write step results
         print("gen host/work/step results: "..host.."/"..work.."/"..step)
-        local s_f = io.open("site/results/"..host.."/"..work.."/"..step..".md", "w")
-        --- host / work title / header
-        s_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") / ["..wcfg.title.."]({{site.baseurl}}/works/"..work..") results\n\n")
-        s_f:write("[< back]({{site.baseurl}}/results/"..host..")\n")
-        --- steps navigation
-        for s_step, args in ipairs(wcfg.steps) do
-          local title = "("..table.concat(args, ",")..")"
-          if s_step == step then -- active page
-            s_f:write("* "..title.."\n")
-          else
-            s_f:write("* ["..title.."]({{site.baseurl}}/results/"..host.."/"..work.."/"..s_step..")\n")
-          end
-        end
-        --- results
-        s_f:write("\n\nrank | lang | env | status | time (s) | CPU user (s) | CPU sys (s) | mem (KB) | impl\n")
-        s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
+        local s_fs = {} -- lang, env, impl depth files
+        table.insert(s_fs, io.open("site/results/"..host.."/"..work.."/"..step.."-1.md", "w"))
+        table.insert(s_fs, io.open("site/results/"..host.."/"..work.."/"..step.."-2.md", "w"))
+        table.insert(s_fs, io.open("site/results/"..host.."/"..work.."/"..step.."-3.md", "w"))
 
+        for depth, s_f in ipairs(s_fs) do -- each depth file
+          --- host / work title / header
+          s_f:write("# ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..") / ["..wcfg.title.."]({{site.baseurl}}/works/"..work..") results\n\n")
+          s_f:write("[< back]({{site.baseurl}}/results/"..host..")\n")
+          --- steps navigation
+          for s_step, args in ipairs(wcfg.steps) do
+            local title = "("..table.concat(args, ",")..")"
+            if s_step == step then -- active page
+              s_f:write("* "..title.."\n")
+            else
+              s_f:write("* ["..title.."]({{site.baseurl}}/results/"..host.."/"..work.."/"..s_step.."-"..depth..")\n")
+            end
+          end
+          --- depth navigation
+          s_f:write("\n**depth:** ")
+          s_f:write(depth ~= 1 and "[lang]({{site.baseurl}}/results/"..host.."/"..work.."/"..step.."-1) | " or "lang | ")
+          s_f:write(depth ~= 2 and "[env]({{site.baseurl}}/results/"..host.."/"..work.."/"..step.."-2) | " or "env | ")
+          s_f:write(depth ~= 3 and "[impl]({{site.baseurl}}/results/"..host.."/"..work.."/"..step.."-3)" or "impl")
+          --- results
+          s_f:write("\n\nrank | lang | env | status | time (s) | CPU user (s) | CPU sys (s) | mem (KB) | impl\n")
+          s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
+        end
+
+        local lang_ignores = {}
         local lang_env_ignores = {}
 
         -- generate entries
@@ -353,29 +365,41 @@ do
           local lcfg = getLang(r.lang)
           local ecfg = getEnv(r.lang,r.env)
 
-          -- avoid lang/env duplicates (take best implementation)
-          if not lang_env_ignores[r.lang.."/"..r.env] then
-            lang_env_ignores[r.lang.."/"..r.env] = true
+          local err_str
+          if measure.err then
+            err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
+          else
+            err_str = "OK"
+          end
 
-            local err_str
-            if measure.err then
-              err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
-            else
-              err_str = "OK"
+          for depth, s_f in ipairs(s_fs) do
+            local display = false
+            if depth == 1 and not lang_ignores[r.lang] then
+              lang_ignores[r.lang] = true
+              display = true
+            elseif depth == 2 and not lang_env_ignores[r.lang.."/"..r.env] then
+              lang_env_ignores[r.lang.."/"..r.env] = true
+              display = true
+            elseif depth == 3 then
+              display = true
             end
 
-            s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
-              .." | ["..ecfg.title.."]({{site.baseurl}}/langs/"..r.lang.."/envs/"..r.env..")"
-              .." | "..err_str
-              .." | "..(measure.min_time and string.format("%."..FP.."f", measure.min_time) or "--")
-              .." | "..(measure.min_utime and string.format("%."..FP.."f", measure.min_utime) or "--")
-              .." | "..(measure.min_stime and string.format("%."..FP.."f", measure.min_stime) or "--")
-              .." | "..(measure.max_maxrss or "--")
-              .." | ["..r.impl.."]({{site.github.repository_url}}/blob/master/langs/"..r.lang.."/impls/"..work.."/"..r.impl..")\n")
+            if display then
+              s_f:write(rank.." | ["..lcfg.title.."]({{site.baseurl}}/langs/"..r.lang..")"
+                .." | ["..ecfg.title.."]({{site.baseurl}}/langs/"..r.lang.."/envs/"..r.env..")"
+                .." | "..err_str
+                .." | "..(measure.min_time and string.format("%."..FP.."f", measure.min_time) or "--")
+                .." | "..(measure.min_utime and string.format("%."..FP.."f", measure.min_utime) or "--")
+                .." | "..(measure.min_stime and string.format("%."..FP.."f", measure.min_stime) or "--")
+                .." | "..(measure.max_maxrss or "--")
+                .." | ["..r.impl.."]({{site.github.repository_url}}/blob/master/langs/"..r.lang.."/impls/"..work.."/"..r.impl..")\n")
+            end
           end
         end
 
-        s_f:close()
+        for depth, s_f in ipairs(s_fs) do
+          s_f:close()
+        end
       end
     end
 
