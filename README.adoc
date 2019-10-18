@@ -74,6 +74,21 @@ All implementations will run in each language's environment, but they are not re
 
 TIP: Implementation's file name may contain anything concise and useful to identify it, but using the algorithm/work's name is useless; this information is already present in the file path.
 
+==== Variables
+
+Variables can be assigned in the implementation using this pattern inside comments:
+
+`!BENCHLANG:<host>:<env>(<var>)=[<value>]`
+
+TIP: An empty `host` or `env` is equivalent to *any*.
+
+.Examples
+* `!BENCHLANG::(LIBS)=[-pthread]`
+* `!BENCHLANG::gcc-any(OPTS)=[-march=native]`
+* `!BENCHLANG::(LIBS)=[-pthread]` (set any)
++
+`!BENCHLANG:specific_host:(LIBS)=[-lpthread]` (exception for this host)
+
 === Host
 
 Describes all the information about the machine/OS where the work is executed and common parameters used to generate the results for all languages.
