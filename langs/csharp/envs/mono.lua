@@ -17,11 +17,11 @@ return {
 https://www.mono-project.com/
 
 IMPL VARS:
-- UNSAFE: yes/no, add runtime -unsafe option (default: no)
+- OPTS: build options (ex: -unsafe)
   ]],
   host_info = info,
   build = function(e)
-    return os.execute(c_path.." -out:"..e.p_tmp.."/run "..e.p_impl) == 0
+    return os.execute(c_path.." "..(e.vars.OPTS or "").." -out:"..e.p_tmp.."/run "..e.p_impl) == 0
   end,
-  run_cmd = function(e, ...) return r_path, e.vars.UNSAFE == "yes" and "-unsafe" or "", e.p_tmp.."/run", ... end
+  run_cmd = function(e, ...) return r_path, e.p_tmp.."/run", ... end
 }
