@@ -1,8 +1,8 @@
 return {
   version = 1,
-  title = "CLBG mandelbrot",
+  title = "CLBG pidigits",
   description = [[
-From: https://benchmarksgame-team.pages.debian.net/benchmarksgame/description/mandelbrot.html#mandelbrot
+From: https://benchmarksgame-team.pages.debian.net/benchmarksgame/description/pidigits.html#pidigits
 
 --------------------------------------------------------------------------------
 Revised BSD license
@@ -27,9 +27,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Background
 --------------------------------------------------------------------------------
 
-MathWorld: http://mathworld.wolfram.com/MandelbrotSet.html
+MathWorld: http://mathworld.wolfram.com/PiDigits.html
 
-Thanks to Greg Buchholz for suggesting this task.
+--------------------------------------------------------------------------------
+Variance
+--------------------------------------------------------------------------------
+
+Some language implementations have arbitrary precision arithmetic built-in; some provide an arbitrary precision arithmetic library; some use a third-party library (GMP); some provide built-in arbitrary precision arithmetic by wrapping a third-party library.
+
+--------------------------------------------------------------------------------
+The work
+--------------------------------------------------------------------------------
+
+The work is to use aribitrary precision arithmetic and the same step-by-step algorithm to generate digits of Pi. Do both extract(3) and extract(4). Don't optimize away the work.
 
 --------------------------------------------------------------------------------
 How to implement
@@ -38,18 +48,21 @@ How to implement
 We ask that contributed programs not only give the correct result, but also use the same algorithm to calculate that result.
 
 Each program should:
+- calculate the first N digits of Pi
+- print the digits 10-to-a-line, with the running total of digits calculated
 
-plot the Mandelbrot set [-1.5-i,0.5+i] on an N-by-N bitmap. Write output byte-by-byte in portable bitmap format.
 [...]
+
+Adapt the step-by-step algorithm given on pages 4,6 & 7 of [pdf 156KB] Unbounded Spigot Algorithms for the Digits of Pi (http://web.comlab.ox.ac.uk/oucl/work/jeremy.gibbons/publications/spigot.pdf). (Not the deliberately obscure version given on page 2. Not the Rabinowitz-Wagon algorithm.)
   ]],
   steps = { -- list of {params...}
-    {"200"},
-    {"2000"},
-    {"5000"}
+    {"1000"},
+    {"5000"},
+    {"15000"}
   },
   check = {
-    "97610473750700638fc63d13cfa49d339b67c18e7f26b3f9c9acb61e746472d5",
-    "42444f9a249913b9fa01fde926562f8c2d9ea862d1ff7a219056e9a7dcf5d404",
-    "00159ae70df29c1dc77a6a9ceef9164154c16cc5c2f7dc714ea3a2314db0cf15"
+    "fffa76efea29ad89ff0bfe661f469218fffa154a1ed8774a7a75dd5e488c6ea1",
+    "b3fb0b5d57a3644f3605e535d05a2f3bda25601b110d5e4b8b37590d856678b6",
+    "5f50b12ca6f431d3d5577285799dbfcd8116144f38478ff14b49276725fccf53"
   }
 }
