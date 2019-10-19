@@ -1,4 +1,6 @@
-public class benchlang
+// !BENCHLANG::(CLASS)=[Fib]
+
+public class Fib
 {
   public static void main(String args[]) 
   {

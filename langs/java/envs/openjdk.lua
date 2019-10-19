@@ -16,12 +16,15 @@ return {
   title = "OpenJDK",
   description = [[
 https://openjdk.java.net/
+
+IMPL VARS:
+- CLASS: Java class to run (default: benchlang)
   ]],
   host_info = info,
   build = function(e)
-    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/benchlang.java") == 0 then -- copy file
-      return os.execute(p_javac.." "..e.p_tmp.."/benchlang.java") == 0 -- compile
+    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/source.java") == 0 then -- copy file
+      return os.execute(p_javac.." "..e.p_tmp.."/source.java") == 0 -- compile
     end
   end,
-  run_cmd = function(e, ...) return p_java, "-cp", e.p_tmp, "benchlang", ... end
+  run_cmd = function(e, ...) return p_java, "-cp", e.p_tmp, e.vars.CLASS or "benchlang", ... end
 }
