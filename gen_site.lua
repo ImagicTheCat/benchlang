@@ -153,7 +153,7 @@ for _, captures in ipairs(results) do
             ag.min_time = measure.time
             ag.min_stime = measure.stime
             ag.min_utime = measure.utime
-            ag.max_maxrss = measure.max_maxrss
+            ag.max_maxrss = measure.maxrss
 
             break
           end
