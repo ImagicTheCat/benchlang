@@ -13,6 +13,6 @@ https://www.lua.org/
 Official VM implementation (latest).
   ]],
   host_info = version,
-  build = function(impl_path, tmp_path) return true end,
-  run_cmd = function(impl_path, tmp_path, ...) return path, impl_path, ... end
+  build = function(e) return true end,
+  run_cmd = function(e, ...) return path, e.p_impl, ... end
 }
