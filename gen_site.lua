@@ -367,7 +367,7 @@ do
 
           local err_str
           if measure.err then
-            err_str = "err: "..(r.err == "status" and measure.err.." = "..r.status or measure.err)
+            err_str = "err: "..(measure.err == "status" and measure.err.." "..measure.status or measure.err)
           else
             err_str = "OK"
           end
