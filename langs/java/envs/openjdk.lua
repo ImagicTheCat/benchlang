@@ -22,8 +22,9 @@ IMPL VARS:
   ]],
   host_info = info,
   build = function(e)
-    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/source.java") == 0 then -- copy file
-      return os.execute(p_javac.." "..e.p_tmp.."/source.java") == 0 -- compile
+    local class = (e.vars.CLASS or "benchlang")
+    if os.execute("cp "..e.p_impl.." "..e.p_tmp.."/"..class..".java") == 0 then -- copy file
+      return os.execute(p_javac.." "..e.p_tmp.."/"..class..".java") == 0 -- compile
     end
   end,
   run_cmd = function(e, ...) return p_java, "-cp", e.p_tmp, e.vars.CLASS or "benchlang", ... end
