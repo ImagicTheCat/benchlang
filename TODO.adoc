@@ -3,4 +3,5 @@
 
 * improve site generation source and output
 * command line options to remove lang, env, work or impl
+* command line option to recompute results with errors
 * implementation var to select environments
