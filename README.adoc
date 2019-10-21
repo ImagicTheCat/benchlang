@@ -31,6 +31,9 @@ Website: https://imagicthecat.github.io/benchlang/
 # download submodules
 git submodule init
 git submodule update
+
+# generate data files
+luajit gen-data.lua
 ----
 
 .Usage examples
