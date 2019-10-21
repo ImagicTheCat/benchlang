@@ -248,7 +248,7 @@ for work, cfg in pairs(works) do
   if f then
     f:write("# "..cfg.title.."\n\n`version "..cfg.version.."`\n\n```\n"..cfg.description.."\n```\n\n## Steps\n\n")
     for i, args in ipairs(cfg.steps) do
-      f:write("* `("..table.concat(args, ",")..")`\n")
+      f:write("* `("..table.concat(args, ", ")..")`\n")
     end
     f:close()
   else
@@ -338,7 +338,7 @@ do
           s_f:write("[< back]({{site.baseurl}}/results/"..host..")\n")
           --- steps navigation
           for s_step, args in ipairs(wcfg.steps) do
-            local title = "("..table.concat(args, ",")..")"
+            local title = "("..table.concat(args, ", ")..")"
             if s_step == step then -- active page
               s_f:write("* "..title.."\n")
             else
