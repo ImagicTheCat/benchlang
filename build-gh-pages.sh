@@ -4,7 +4,7 @@ git checkout --orphan gh-pages
 git rm . -r --cached
 
 # gen site
-luajit gen_site.lua
+luajit gen-site.lua
 
 # publish
 git add site
