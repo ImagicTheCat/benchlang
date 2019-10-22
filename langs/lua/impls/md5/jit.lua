@@ -20,8 +20,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Note: this license doesn't apply for files with explicit licenses, especially contributed work implementations.
 ]]
 
 -- contributed by Imagic for LuaJIT based on https://tools.ietf.org/html/rfc1321
