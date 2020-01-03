@@ -126,7 +126,15 @@ for _, captures in ipairs(results) do
     end
 
     -- index env infos
-    if hcfg and lcfg and ecfg then hcfg.env_infos[lang.."/"..env] = result.host_info end
+    if hcfg and lcfg and ecfg then
+      local infos = hcfg.env_infos[lang.."/"..env]
+      if not infos then -- create
+        infos = {} -- map of env infos
+        hcfg.env_infos[lang.."/"..env] = infos
+      end
+
+      infos[result.host_info] = true
+    end
 
     -- index valid results
     if hcfg and lcfg and ecfg and wcfg
@@ -226,11 +234,15 @@ for host, cfg in pairs(hosts) do
     f:write("# "..cfg.title.."\n\n```\n"..cfg.description.."\n```\n\n## Parameters\n\n")
     f:write("```\nmeasures: "..cfg.measures.."\ntimeout: "..cfg.timeout.." s\ncheck delay: "..cfg.check_delay.." ms\n```\n\n")
     f:write("## Environments\n\n")
-    for lang_env, info in pairs(cfg.env_infos) do
+    for lang_env, infos in pairs(cfg.env_infos) do
       local lang, env = string.match(lang_env, "^(.-)/(.-)$")
       local lcfg = getLang(lang)
       local ecfg = getEnv(lang, env)
-      f:write("### ["..lcfg.title.."]({{site.baseurl}}/langs/"..lang..") / ["..ecfg.title.."]({{site.baseurl}}/langs/"..lang.."/envs/"..env..")\n\n```\n"..info.."\n```\n\n")
+      f:write("### ["..lcfg.title.."]({{site.baseurl}}/langs/"..lang..") / ["..ecfg.title.."]({{site.baseurl}}/langs/"..lang.."/envs/"..env..")\n\n")
+
+      for info in pairs(infos) do
+        f:write("```\n"..info.."\n```\n\n")
+      end
     end
 
     f:close()
