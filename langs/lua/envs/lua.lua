@@ -1,4 +1,4 @@
-local path = os.getenv("LUA_PATH") or "lua"
+local path = os.getenv("BL_LUA_PATH") or "lua"
 
 local f = io.popen(path.." -v")
 local version = f:read("*a")

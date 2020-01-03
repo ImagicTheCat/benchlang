@@ -1,5 +1,5 @@
 
-local path = os.getenv("RUSTC_PATH") or "rustc"
+local path = os.getenv("BL_RUSTC_PATH") or "rustc"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

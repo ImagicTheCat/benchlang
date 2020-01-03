@@ -1,5 +1,5 @@
 
-local path = os.getenv("OCAMLOPT_PATH") or "ocamlopt"
+local path = os.getenv("BL_OCAMLOPT_PATH") or "ocamlopt"
 
 local f = io.popen(path.." -v")
 local info = f:read("*a")

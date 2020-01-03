@@ -1,4 +1,4 @@
-local path = os.getenv("LUAJIT_PATH") or "luajit"
+local path = os.getenv("BL_LUAJIT_PATH") or "luajit"
 
 local f = io.popen(path.." -v -joff"..[[ -e "print(jit.status())"]])
 local version = f:read("*a")

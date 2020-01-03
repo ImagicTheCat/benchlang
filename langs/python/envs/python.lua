@@ -1,4 +1,4 @@
-local path = os.getenv("PYTHON_PATH") or "python"
+local path = os.getenv("BL_PYTHON_PATH") or "python"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

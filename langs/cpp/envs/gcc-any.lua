@@ -1,4 +1,4 @@
-local path = os.getenv("GCC_PP_PATH") or "g++"
+local path = os.getenv("BL_GCC_PP_PATH") or "g++"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

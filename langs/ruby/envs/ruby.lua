@@ -1,5 +1,5 @@
 
-local path = os.getenv("RUBY_PATH") or "ruby"
+local path = os.getenv("BL_RUBY_PATH") or "ruby"
 
 local f = io.popen(path.." -v")
 local version = f:read("*a")

@@ -1,4 +1,4 @@
-local path = os.getenv("PYPY_PATH") or "pypy3"
+local path = os.getenv("BL_PYPY_PATH") or "pypy3"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

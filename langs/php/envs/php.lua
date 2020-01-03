@@ -1,5 +1,5 @@
 
-local path = os.getenv("PHP_PATH") or "php"
+local path = os.getenv("BL_PHP_PATH") or "php"
 
 local f = io.popen(path.." -v")
 local version = f:read("*a")

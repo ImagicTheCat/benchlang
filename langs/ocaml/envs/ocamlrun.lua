@@ -1,5 +1,5 @@
-local p_ocamlc = os.getenv("OCAMLC_PATH") or "ocamlc"
-local p_ocamlrun = os.getenv("OCAMLRUN_PATH") or "ocamlrun"
+local p_ocamlc = os.getenv("BL_OCAMLC_PATH") or "ocamlc"
+local p_ocamlrun = os.getenv("BL_OCAMLRUN_PATH") or "ocamlrun"
 
 local f = io.popen(p_ocamlc.." -v")
 local info = f:read("*a")

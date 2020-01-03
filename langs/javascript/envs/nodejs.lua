@@ -1,4 +1,4 @@
-local path = os.getenv("NODEJS_PATH") or "node"
+local path = os.getenv("BL_NODEJS_PATH") or "node"
 
 local f = io.popen(path.." -v")
 local version = f:read("*a")

@@ -1,6 +1,6 @@
 
-local c_path = os.getenv("MONO_MCS_PATH") or "mcs"
-local r_path = os.getenv("MONO_PATH") or "mono"
+local c_path = os.getenv("BL_MONO_MCS_PATH") or "mcs"
+local r_path = os.getenv("BL_MONO_PATH") or "mono"
 
 local f = io.popen(c_path.." --version")
 local info = f:read("*a")

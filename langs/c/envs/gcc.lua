@@ -1,4 +1,4 @@
-local path = os.getenv("GCC_PATH") or "gcc"
+local path = os.getenv("BL_GCC_PATH") or "gcc"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

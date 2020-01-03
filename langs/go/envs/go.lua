@@ -1,4 +1,4 @@
-local path = os.getenv("GO_PATH") or "go"
+local path = os.getenv("BL_GO_PATH") or "go"
 
 local f = io.popen(path.." version")
 local version = f:read("*a")

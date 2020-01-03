@@ -1,5 +1,5 @@
 
-local path = os.getenv("GHC_PATH") or "ghc"
+local path = os.getenv("BL_GHC_PATH") or "ghc"
 
 local f = io.popen(path.." --version")
 local version = f:read("*a")

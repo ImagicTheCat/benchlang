@@ -63,7 +63,7 @@ NOTE: It's a matter of choice to decide if language versions are defined as diff
 
 A specific language builder/VM/etc executing an implementation's source code.
 
-TIP: The script may use OS environment variables to adapt to the user system.
+TIP: The script may use OS environment variables to adapt to the user system. Custom environment variables should be prefixed by `BL_` to avoid conflicts.
 
 === Work
 
