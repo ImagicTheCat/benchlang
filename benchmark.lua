@@ -3,7 +3,7 @@
 local ffi = require("ffi")
 local argparse = require("argparse")
 local msgpack = require("MessagePack")
-local sha2 = require("./extern/sha2/sha2")
+local sha2 = require("extern.sha2.sha2")
 
 -- DEF
 

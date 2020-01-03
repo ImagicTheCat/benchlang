@@ -2,7 +2,7 @@
 -- generate some site data files
 
 local msgpack = require("MessagePack")
-local sha2 = require("./extern/sha2/sha2")
+local sha2 = require("extern.sha2.sha2")
 
 -- consts
 local FP = 3 -- float precision, number of decimals

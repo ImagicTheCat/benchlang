@@ -1,7 +1,7 @@
 -- require LuaJIT
 -- generate some data files
 
-local sha2 = require("./extern/sha2/sha2")
+local sha2 = require("extern.sha2.sha2")
 
 -- DEF
 
