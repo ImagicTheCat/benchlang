@@ -69,6 +69,8 @@ TIP: The script may use OS environment variables to adapt to the user system. Cu
 
 Something that must be done by the languages; Different set of parameters and expected outputs are used to verify that the work has been done correctly.
 
+NOTE: Steps should increase gradually in computational complexity to give meaningful measures for fast and slow results.
+
 === Implementation
 
 An implementation of a specific work in a specific language.
@@ -95,6 +97,14 @@ TIP: An empty `host` or `env` is equivalent to *any*.
 === Host
 
 Describes all the information about the machine/OS where the work is executed and common parameters used to generate the results for all languages.
+
+[NOTE]
+====
+.Using a timeout of 60 seconds may be a good choice.
+- already a lot of computation for a modern CPU
+- enough to get meaningful measures with gradually complex work's steps
+- fast enough to get a lot of measures and recompute some if needed
+====
 
 == Contributions
 
