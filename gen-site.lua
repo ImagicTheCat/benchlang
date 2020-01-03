@@ -363,7 +363,7 @@ do
           s_f:write(depth ~= 2 and "[env]({{site.baseurl}}/results/"..host.."/"..work.."/"..step.."-2) | " or "env | ")
           s_f:write(depth ~= 3 and "[impl]({{site.baseurl}}/results/"..host.."/"..work.."/"..step.."-3)" or "impl")
           --- results
-          s_f:write("\n\nrank | lang | env | status | time (s) | CPU user (s) | CPU sys (s) | mem (KB) | impl\n")
+          s_f:write("\n\nrank | lang | env | status | time (s) | CPU user (s) | CPU sys (s) | mem (kB) | impl\n")
           s_f:write("--- | --- | --- | --- | --- | --- | --- | --- | ---\n")
         end
 
