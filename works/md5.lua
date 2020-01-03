@@ -15,9 +15,9 @@ args: <filepath> <n>
 output: hash (16 bytes)
   ]],
   steps = { -- list of {params...}
-    {"data/random-1MiB-79421.data", "10"},
-    {"data/random-1MiB-79421.data", "50"},
-    {"data/random-1MiB-79421.data", "100"}
+    {"data/random-1MiB-0.data", "10"},
+    {"data/random-1MiB-0.data", "50"},
+    {"data/random-1MiB-0.data", "100"}
   },
   check = {
     "d5b365bded8b4852b17d72c49192cf0faff291d3cf08bf2341767e09f19a2e76",

@@ -10,6 +10,8 @@ local sha2 = require("extern.sha2.sha2")
 -- size: bytes
 -- hash: (optional) hash check (lowercase hex)
 local function gen_file(path, seed, size, hash)
+  math.randomseed(seed)
+
   local f = io.open(path, "wb")
   if f then
     for i=1,size do
@@ -43,4 +45,4 @@ end
 -- DO
 
 os.execute("mkdir -p data")
-gen_file("data/random-1MiB-79421.data", 79421, 2^20, "60a4ce407e3bbedb5ab9d6fad9704d48fe5f72e5d2e9341b2553ef5474d44b89")
+gen_file("data/random-1MiB-0.data", 0, 2^20, "60a4ce407e3bbedb5ab9d6fad9704d48fe5f72e5d2e9341b2553ef5474d44b89")
