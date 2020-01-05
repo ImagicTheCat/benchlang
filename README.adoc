@@ -12,7 +12,7 @@ endif::[]
 
 This project aims to be a tool, a collection of measures and a website about benchmarking languages and their implementations. Measures are nice; interpretation of those measures is up to human beings.
 
-Website: https://imagicthecat.github.io/benchlang/
+Website: https://benchlang.github.io/benchlang/
 
 .Dependencies
 * GNU/Linux (may extend to POSIX systems)
