@@ -171,8 +171,8 @@ end
 
 do -- Write index.
   print("gen index")
-  os.execute("mkdir -p gh-pages/")
-  local f, err = io.open("gh-pages/index.adoc", "w")
+  os.execute("mkdir -p site/")
+  local f, err = io.open("site/index", "w")
   if f then
     -- hosts index
     f:write("= Benchlang\n\n"..[[
@@ -182,17 +182,17 @@ More informations on the https://github.com/benchlang/benchlang[project] page.
     ]])
     f:write("\n\n== Hosts\n\n")
     for host, cfg in pairs(hosts) do
-      f:write("- link:hosts/"..host.."["..cfg.title.."]) - link:results/"..host.."[results]\n")
+      f:write("- xref:hosts/"..host.."["..cfg.title.."]) - xref:results/"..host.."[results]\n")
     end
     -- langs index
     f:write("\n\n== Languages\n\n")
     for lang, cfg in pairs(langs) do
-      f:write("- link:langs/"..lang.."["..cfg.title.."]\n")
+      f:write("- xref:langs/"..lang.."["..cfg.title.."]\n")
     end
     -- works index
     f:write("\n\n== Works\n\n")
     for work, cfg in pairs(works) do
-      f:write("- link:works/"..work.."["..cfg.title.."]\n")
+      f:write("- xref:works/"..work.."["..cfg.title.."]\n")
     end
   else
     print(err)
@@ -200,10 +200,10 @@ More informations on the https://github.com/benchlang/benchlang[project] page.
 end
 
 -- Write host files.
-os.execute("mkdir -p gh-pages/hosts")
+os.execute("mkdir -p site/hosts")
 for host, cfg in pairs(hosts) do
   print("gen host: "..host)
-  local f, err = io.open("gh-pages/hosts/"..host..".adoc", "w")
+  local f, err = io.open("site/hosts/"..host, "w")
   if f then
     f:write("= "..cfg.title.."\n\n----\n"..cfg.description.."\n----\n\n== Parameters\n\n")
     f:write("----\nmeasures: "..cfg.measures.."\ntimeout: "..cfg.timeout..
@@ -212,7 +212,7 @@ for host, cfg in pairs(hosts) do
     for lang_env, infos in pairs(cfg.env_infos) do
       local lang, env = string.match(lang_env, "^(.-)/(.-)$")
       local lcfg, ecfg = getLang(lang), getEnv(lang, env)
-      f:write("=== link:langs/"..lang.."["..lcfg.title.."] / link:langs/"..lang.."/envs/"..env.."["..ecfg.title.."]\n\n")
+      f:write("=== xref:../langs/"..lang.."["..lcfg.title.."] / xref:../langs/"..lang.."/envs/"..env.."["..ecfg.title.."]\n\n")
       for info in pairs(infos) do f:write("----\n"..info.."\n----\n\n") end
     end
     f:close()
@@ -222,10 +222,10 @@ for host, cfg in pairs(hosts) do
 end
 
 -- Write work files.
-os.execute("mkdir -p gh-pages/works")
+os.execute("mkdir -p site/works")
 for work, cfg in pairs(works) do
   print("gen work: "..work)
-  local f, err = io.open("gh-pages/works/"..work..".adoc", "w")
+  local f, err = io.open("site/works/"..work, "w")
   if f then
     f:write("= "..cfg.title.."\n\n`version "..cfg.version.."`\n\n----\n"..
       cfg.description.."\n----\n\n== Steps\n\n")
@@ -241,16 +241,16 @@ end
 -- Write lang/env files.
 for lang, cfg in pairs(langs) do
   print("gen lang: "..lang)
-  os.execute("mkdir -p gh-pages/langs/"..lang.."/envs")
+  os.execute("mkdir -p site/langs/"..lang.."/envs")
   -- write lang file
-  local f, err = io.open("gh-pages/langs/"..lang.."/index.adoc", "w")
+  local f, err = io.open("site/langs/"..lang.."/index", "w")
   if f then
     f:write("= "..cfg.title.."\n\n----\n"..cfg.description.."\n----\n\n== Environments\n\n")
     -- write env files and lang-env index
     for env, ecfg in pairs(cfg.envs) do
       print("gen env: "..env)
-      f:write("- link:langs/"..lang.."/envs/"..env.."["..ecfg.title.."]\n")
-      local e_f, err = io.open("gh-pages/langs/"..lang.."/envs/"..env..".adoc", "w")
+      f:write("- xref:../langs/"..lang.."/envs/"..env.."["..ecfg.title.."]\n")
+      local e_f, err = io.open("site/langs/"..lang.."/envs/"..env, "w")
       if e_f then
         e_f:write("= "..ecfg.title.."\n\n`version "..ecfg.version.."`\n\n----\n"..
           ecfg.description.."\n----")
@@ -271,16 +271,15 @@ do -- Write aggregated results per host/work.
   end
   for host, hcfg in pairs(hosts) do -- each host
     -- write host works index
-    os.execute("mkdir -p gh-pages/results/"..host)
+    os.execute("mkdir -p site/results/"..host)
     print("gen host results: "..host)
-    local h_f = io.open("gh-pages/results/"..host.."/index.adoc", "w")
-    h_f:write("= ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..
-      ") work results\n\n== Works\n\n")
+    local h_f = io.open("site/results/"..host.."/index", "w")
+    h_f:write("= xref:../hosts/"..host.."["..hcfg.title.."] work results\n\n== Works\n\n")
     for work, results in pairs(hcfg.works_results) do -- each work => results
       local wcfg = getWork(work)
-      os.execute("mkdir -p gh-pages/results/"..host.."/"..work)
+      os.execute("mkdir -p site/results/"..host.."/"..work)
       -- host work index: link to first step results
-      h_f:write("* ["..wcfg.title.."]({{site.baseurl}}/results/"..host.."/"..work.."/1-2)\n")
+      h_f:write("- xref:../results/"..host.."/"..work.."/1-2["..wcfg.title.."]\n")
       for step, args in ipairs(wcfg.steps) do -- each step
         local step_results = {}
         for _, result in ipairs(results) do
@@ -297,11 +296,11 @@ do -- Write aggregated results per host/work.
         print("gen host/work/step results: "..host.."/"..work.."/"..step)
         local s_fs = {} -- lang, env, impl depth files
         table.insert(s_fs,
-          io.open("gh-pages/results/"..host.."/"..work.."/"..step.."-1.adoc", "w"))
+          io.open("site/results/"..host.."/"..work.."/"..step.."-1", "w"))
         table.insert(s_fs,
-          io.open("gh-pages/results/"..host.."/"..work.."/"..step.."-2.adoc", "w"))
+          io.open("site/results/"..host.."/"..work.."/"..step.."-2", "w"))
         table.insert(s_fs,
-          io.open("gh-pages/results/"..host.."/"..work.."/"..step.."-3.adoc", "w"))
+          io.open("site/results/"..host.."/"..work.."/"..step.."-3", "w"))
         for depth, s_f in ipairs(s_fs) do -- each depth file
           --- host / work title / header
           s_f:write("= ["..hcfg.title.."]({{site.baseurl}}/hosts/"..host..
